@@ -1,0 +1,26 @@
+{
+  "name": "nexus-portal",
+  "version": "1.0.0",
+  "description": "Nexus Gaming Community Portal - Discord and Google Integrated Website",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "keywords": [
+    "nexus",
+    "gaming",
+    "discord",
+    "google",
+    "oauth",
+    "portal"
+  ],
+  "author": "André Alves",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-session": "^1.18.0",
+    "sqlite3": "^5.1.7"
+  }
+}

@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus</title>
+    <meta name="description" content="Portal oficial da comunidade Nexus. Sincroniza o teu Discord e Google, participa em competições, acompanha novidades, partilha músicas e acede à zona exclusiva de sócios.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- Cyberpunk Decorative Glows -->
+    <div class="cyber-glow-purple"></div>
+    <div class="cyber-glow-cyan"></div>
+    <div class="cyber-glow-magenta"></div>
+    <div class="cyber-grid-overlay"></div>
+
+    <!-- Header Navigation -->
+    <header class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="#" class="logo-area" onclick="switchTab('home')">
+                <div class="logo-wrapper">
+                    <span class="logo-letter">N</span>
+                </div>
+                <span class="logo-text">NEXUS</span>
+            </a>
+            
+            <nav class="nav-menu" id="nav-menu">
+                <a href="#home" class="nav-link active" onclick="switchTab('home')">Início & Regras</a>
+                <a href="#feed" class="nav-link" onclick="switchTab('feed')">Novidades Discord</a>
+                <a href="#musicas" class="nav-link" onclick="switchTab('musicas')">Músicas</a>
+                <a href="#ranking" class="nav-link" onclick="switchTab('ranking')">Leaderboard</a>
+                <a href="#tickets" class="nav-link" onclick="switchTab('tickets')">Tickets</a>
+                <a href="#socio" class="nav-link" id="nav-socio-btn" onclick="switchTab('socio')">
+                    <i data-lucide="gem" class="icon-socio-glow"></i> Zona Sócio
+                </a>
+                <a href="#admin" class="nav-link nav-admin-only" id="nav-admin-btn" onclick="switchTab('admin')" style="display: none;">
+                    <i data-lucide="shield-alert"></i> Admin
+                </a>
+            </nav>
+
+            <!-- Online Counter -->
+            <div class="nav-online-wrap" style="display: flex; align-items: center; gap: 8px; margin-right: 12px; font-family: var(--font-header); font-size: 0.8rem; font-weight: 600; color: var(--neon-cyan);">
+                <span class="pulse-dot" style="width: 6px; height: 6px; border-radius: 50%; background: var(--neon-cyan); box-shadow: 0 0 6px var(--neon-cyan); animation: pulse 1.5s infinite;"></span>
+                <span><span id="header-online-count">0</span> membros online</span>
+            </div>
+
+            <!-- Authentication Widget -->
+            <div class="nav-auth" id="nav-auth-container">
+                <button class="btn btn-outline-cyan btn-sm" onclick="showSyncModal()">
+                    <i data-lucide="link"></i> Sincronizar Conta
+                </button>
+            </div>
+
+            <button class="menu-toggle" id="menu-toggle" aria-label="Menu">
+                <i data-lucide="menu"></i>
+            </button>
+        </div>
+    </header>
+
+    <main class="main-content">
+        
+        <!-- ==================================================== -->
+        <!-- HOME & RULES SECTION -->
+        <!-- ==================================================== -->
+        <section id="tab-home" class="tab-section active">
+            <div class="hero-split">
+                <div class="hero-info">
+                    <div class="nexus-badge">
+                        <span class="badge-dot"></span> COMUNIDADE OFICIAL NEXUS
+                    </div>
+                    <h1 class="hero-title">Bem-vindo à <span class="gradient-neon">Nexus.</span></h1>
+                    <p class="hero-desc">
+                        A nossa empresa e comunidade gaming num único espaço digital. Sincroniza as tuas contas para desbloquear cargos automáticos, acompanhar os feeds de Discord, partilhar músicas, criar tickets de suporte e competir no topo do ranking.
+                    </p>
+                    <div class="hero-actions">
+                        <button class="btn btn-neon-cyan" onclick="switchTab('socio')">Aceder à Zona de Sócios <i data-lucide="arrow-right"></i></button>
+                        <a href="#regras-card" class="btn btn-outline-purple">Ler Regras do Servidor</a>
+                    </div>
+                </div>
+                <div class="hero-shield">
+                    <div class="logo-box">
+                        <div class="glow-ring"></div>
+                        <span class="shield-n">N</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Member Cards Benefits -->
+            <div class="section-title-wrap">
+                <span class="tag-cyan">BENEFÍCIOS EXCLUSIVOS</span>
+                <h2 class="section-h2">Torna-te Sócio Nexus</h2>
+            </div>
+            
+            <div class="socio-benefit-grid">
+                <div class="benefit-card">
+                    <div class="benefit-icon"><i data-lucide="messages-square"></i></div>
+                    <h3>Chat Exclusivo</h3>
+                    <p>Acede a um chat restrito no site e no Discord para debater estratégias e jogar com outros sócios.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon"><i data-lucide="megaphone"></i></div>
+                    <h3>Notícias & Drops</h3>
+                    <p>Recebe novidades privilegiadas e códigos de jogos, chaves beta ou drops em primeira mão.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon"><i data-lucide="trophy"></i></div>
+                    <h3>Torneios & Eventos</h3>
+                    <p>Inscrições prioritárias e competições mensais exclusivas para sócios com recompensas em dinheiro.</p>
+                </div>
+            </div>
+
+            <!-- Rules Card -->
+            <div class="rules-container" id="regras-card">
+                <div class="rules-card">
+                    <div class="rules-header">
+                        <i data-lucide="scroll" class="rules-logo-icon"></i>
+                        <h2>Regras Oficiais do Servidor</h2>
+                        <p>O cumprimento destas regras é obrigatório para manter a harmonia no portal e no servidor de Discord.</p>
+                    </div>
+                    <div class="rules-body">
+                        <ol class="rules-list">
+                            <li>
+                                <strong>Respeito Mútuo:</strong> É estritamente proibido qualquer comportamento tóxico, assédio, racismo, homofobia ou difamação de outros membros.
+                            </li>
+                            <li>
+                                <strong>Sem Spam ou Auto-Promoção:</strong> Não faças publicidade indesejada, convites de servidores ou spam de mensagens nos canais de texto.
+                            </li>
+                            <li>
+                                <strong>Linguagem Adequada:</strong> Mantém uma linguagem moderada e apropriada. Evita discussões excessivas de cariz político ou religioso.
+                            </li>
+                            <li>
+                                <strong>Uso Correto de Canais:</strong> Publica cada conteúdo no canal correspondente (ex. partilha músicas apenas no separador Músicas).
+                            </li>
+                            <li>
+                                <strong>Uso de Tickets:</strong> Utiliza o sistema de Tickets para dúvidas, denúncias ou problemas relacionados com o cargo de sócio. Evita mencionar staff em canais públicos desnecessariamente.
+                            </li>
+                            <li>
+                                <strong>Conta Sincronizada:</strong> Para usufruir de privilégios de Sócio ou Administrador, precisas de manter a tua conta de Discord sincronizada no site.
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================================================== -->
+        <!-- DISCORD FEEDS SECTION -->
+        <!-- ==================================================== -->
+        <section id="tab-feed" class="tab-section">
+            <div class="section-title-wrap text-center">
+                <span class="tag-magenta"><i data-lucide="rss"></i> FEEDS EM TEMPO REAL</span>
+                <h2 class="section-h2">Sincronizado com Discord</h2>
+                <p class="section-p">Acompanha as atualizações diretamente das salas oficiais do nosso servidor de Discord.</p>
+            </div>
+
+            <!-- Feed Selector Tabs -->
+            <div class="feed-tabs">
+                <button class="feed-tab-btn active" onclick="loadDiscordFeed('1157363514629955585', this)">
+                    <i data-lucide="newspaper"></i> Notícias
+                </button>
+                <button class="feed-tab-btn" onclick="loadDiscordFeed('1450873051842478131', this)">
+                    <i data-lucide="help-circle"></i> Questionários
+                </button>
+                <button class="feed-tab-btn" onclick="loadDiscordFeed('1157693965605281895', this)">
+                    <i data-lucide="sword"></i> Competições
+                </button>
+                <button class="feed-tab-btn" onclick="loadDiscordFeed('1157693356160336046', this)">
+                    <i data-lucide="calendar"></i> Eventos
+                </button>
+                <button class="feed-tab-btn" onclick="loadDiscordFeed('1178797044538810398', this)">
+                    <i data-lucide="gamepad-2"></i> Jogos Grátis
+                </button>
+                <button class="feed-tab-btn" onclick="loadDiscordFeed('1157441147514388490', this)">
+                    <i data-lucide="gift"></i> Giveaways
+                </button>
+            </div>
+
+            <!-- Admin Announcement Form (Apenas para Admins) -->
+            <div class="glass-panel admin-announcement-panel" id="admin-announcement-form-container" style="display: none; margin-bottom: 24px; border-left: 2px solid var(--neon-magenta);">
+                <h3><i data-lucide="megaphone"></i> Publicar Informação Oficial (Apenas Administradores)</h3>
+                <p class="panel-subtitle">Esta informação será publicada no site de forma persistente e 100% real.</p>
+                <form id="admin-announcement-form" class="cyber-form" onsubmit="submitAnnouncement(event)">
+                    <div class="form-row">
+                        <div class="form-group flex-1">
+                            <label for="announce-channel">Destino / Secção</label>
+                            <select id="announce-channel" required>
+                                <option value="1157363514629955585" selected>Notícias</option>
+                                <option value="1450873051842478131">Questionários</option>
+                                <option value="1157693965605281895">Competições</option>
+                                <option value="1157693356160336046">Eventos</option>
+                                <option value="1178797044538810398">Jogos Grátis</option>
+                                <option value="1157441147514388490">Giveaways</option>
+                            </select>
+                        </div>
+                        <div class="form-group flex-2">
+                            <label for="announce-title">Título do Anúncio *</label>
+                            <input type="text" id="announce-title" placeholder="Resumo em poucas palavras" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="announce-content">Conteúdo / Descrição *</label>
+                        <textarea id="announce-content" rows="4" placeholder="Escreve aqui o anúncio oficial do servidor..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-neon-magenta btn-block">Publicar Anúncio Real</button>
+                </form>
+            </div>
+
+            <!-- Feed Messages List -->
+            <div class="feed-messages-container" id="feed-messages-list">
+                <!-- Dynamically Populated -->
+                <div class="feed-loading">
+                    <div class="spinner"></div>
+                    <p>A sincronizar com os canais do Discord...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================================================== -->
+        <!-- SERVER MUSIC SECTION -->
+        <!-- ==================================================== -->
+        <section id="tab-musicas" class="tab-section">
+            <div class="music-layout">
+                <div class="music-main">
+                    <div class="section-title-wrap">
+                        <span class="tag-purple"><i data-lucide="disc"></i> SOM DA COMUNIDADE</span>
+                        <h2 class="section-h2">Músicas do Servidor</h2>
+                        <p class="section-p">Partilha os teus sons favoritos de YouTube ou Spotify e vota nas músicas sugeridas por outros utilizadores.</p>
+                    </div>
+
+                    <div class="music-list-container" id="music-list">
+                        <!-- Loaded Dynamically -->
+                    </div>
+                </div>
+
+                <div class="music-sidebar">
+                    <div class="glass-panel music-form-panel">
+                        <h3><i data-lucide="plus-circle"></i> Partilhar Música</h3>
+                        <p class="panel-subtitle">Submete uma faixa para o playlist da comunidade.</p>
+                        
+                        <div class="auth-required-block" id="music-auth-block">
+                            <p>Precisas de estar autenticado para partilhar músicas no portal.</p>
+                            <button class="btn btn-outline-cyan btn-sm btn-block" onclick="showSyncModal()">Fazer Login / Sincronizar</button>
+                        </div>
+
+                        <form id="add-music-form" class="cyber-form" style="display: none;" onsubmit="submitMusic(event)">
+                            <div class="form-group">
+                                <label for="music-title">Título da Música *</label>
+                                <input type="text" id="music-title" placeholder="Ex: Cyberpunk 2077 Theme" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="music-artist">Artista</label>
+                                <input type="text" id="music-artist" placeholder="Ex: Marcin Przybyłowicz">
+                            </div>
+                            <div class="form-group">
+                                <label for="music-url">URL da Música (YouTube, Spotify ou SoundCloud) *</label>
+                                <input type="url" id="music-url" placeholder="https://..." required>
+                                <small class="form-hint">Links válidos do YouTube, Spotify ou SoundCloud.</small>
+                            </div>
+                            <button type="submit" class="btn btn-neon-purple btn-block">Submeter Som (+10 XP)</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================================================== -->
+        <!-- RANKING / LEADERBOARD SECTION -->
+        <!-- ==================================================== -->
+        <section id="tab-ranking" class="tab-section">
+            <div class="section-title-wrap text-center">
+                <span class="tag-cyan"><i data-lucide="crown"></i> RANKING GLOBAL</span>
+                <h2 class="section-h2">Leaderboard da Comunidade</h2>
+                <p class="section-p">Ganha XP participando no chat de sócios (+5 XP) ou partilhando as tuas músicas (+10 XP) para subir no ranking oficial.</p>
+            </div>
+
+            <div class="ranking-layout">
+                <!-- Podiums -->
+                <div class="podium-container" id="podium-list">
+                    <!-- Top 3 dynamic elements -->
+                </div>
+
+                <!-- Table Leaderboard -->
+                <div class="glass-panel ranking-panel">
+                    <div class="table-responsive">
+                        <table class="ranking-table">
+                            <thead>
+                                <tr>
+                                    <th>Posição</th>
+                                    <th>Membro</th>
+                                    <th>Nível</th>
+                                    <th>Cargo</th>
+                                    <th>XP Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leaderboard-tbody">
+                                <!-- Loaded Dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================================================== -->
+        <!-- TICKET / SUPPORT SECTION -->
+        <!-- ==================================================== -->
+        <section id="tab-tickets" class="tab-section">
+            <div class="ticket-layout">
+                <div class="ticket-sidebar">
+                    <div class="glass-panel select-ticket-panel">
+                        <div class="panel-header-btn">
+                            <h3>Os meus Tickets</h3>
+                            <button class="btn btn-outline-cyan btn-xs" id="btn-new-ticket" onclick="showTicketForm()">Novo</button>
+                        </div>
+                        <div class="tickets-nav-list" id="tickets-list-container">
+                            <!-- Dynamically loaded tickets -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ticket-main">
+                    <!-- Ticket Empty State -->
+                    <div class="glass-panel ticket-chat-panel empty-ticket-state" id="ticket-empty-view">
+                        <i data-lucide="message-square" class="big-icon"></i>
+                        <h3>Área de Suporte</h3>
+                        <p>Seleciona um ticket existente ou cria um novo ticket para obteres ajuda dos administradores do servidor.</p>
+                        <button class="btn btn-neon-purple mt-20" onclick="showTicketForm()">Criar Novo Ticket</button>
+                    </div>
+
+                    <!-- Ticket Create Form -->
+                    <div class="glass-panel ticket-chat-panel" id="ticket-create-view" style="display: none;">
+                        <div class="panel-header">
+                            <h3><i data-lucide="file-plus"></i> Abrir Novo Ticket</h3>
+                            <button class="btn-close" onclick="cancelTicketCreate()"><i data-lucide="x"></i></button>
+                        </div>
+                        
+                        <div class="auth-required-block" id="ticket-auth-block">
+                            <p>Precisas de ter as contas sincronizadas para abrir tickets de suporte.</p>
+                            <button class="btn btn-outline-cyan btn-sm" onclick="showSyncModal()">Sincronizar Conta</button>
+                        </div>
+
+                        <form id="new-ticket-form" class="cyber-form" style="display: none;" onsubmit="submitTicket(event)">
+                            <div class="form-row">
+                                <div class="form-group flex-1">
+                                    <label for="ticket-category">Categoria *</label>
+                                    <select id="ticket-category" required>
+                                        <option value="Suporte Geral" selected>Suporte Geral</option>
+                                        <option value="Dúvida sobre Sócios">Dúvida sobre Sócios</option>
+                                        <option value="Denúncia de Jogador">Denúncia de Jogador</option>
+                                        <option value="Bug no Site">Bug no Site / Servidor</option>
+                                    </select>
+                                </div>
+                                <div class="form-group flex-2">
+                                    <label for="ticket-title">Título do Ticket *</label>
+                                    <input type="text" id="ticket-title" placeholder="Resumo do teu problema" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="ticket-desc">Descrição Detalhada *</label>
+                                <textarea id="ticket-desc" rows="6" placeholder="Explica em detalhe o que se passa para a nossa equipa te poder ajudar o mais rápido possível..." required></textarea>
+                            </div>
+                            <div class="form-actions-right">
+                                <button type="button" class="btn btn-link" onclick="cancelTicketCreate()">Cancelar</button>
+                                <button type="submit" class="btn btn-neon-cyan">Criar Ticket</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Ticket Chat Thread View -->
+                    <div class="glass-panel ticket-chat-panel" id="ticket-thread-view" style="display: none;">
+                        <div class="ticket-thread-header">
+                            <div class="ticket-header-meta">
+                                <span class="ticket-id-tag" id="thread-ticket-id">TICKET-0000</span>
+                                <h3 id="thread-ticket-title">Título do Ticket</h3>
+                                <span class="ticket-cat-badge" id="thread-ticket-category">Categoria</span>
+                            </div>
+                            <div class="ticket-header-actions">
+                                <button class="btn btn-outline-magenta btn-sm" id="btn-close-ticket" onclick="closeActiveTicket()">
+                                    <i data-lucide="lock"></i> Fechar Ticket
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Chat message messages scroll -->
+                        <div class="ticket-messages" id="ticket-messages-thread">
+                            <!-- Loaded Dynamically -->
+                        </div>
+
+                        <!-- Ticket Reply Input Box -->
+                        <div class="ticket-chat-input" id="ticket-input-area">
+                            <form onsubmit="sendTicketReply(event)" class="chat-input-form">
+                                <input type="text" id="ticket-reply-msg" placeholder="Escreve uma resposta para a equipa..." required>
+                                <button type="submit" class="btn btn-neon-cyan"><i data-lucide="send"></i></button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================================================== -->
+        <!-- ZONE DE SÓCIOS (EXCLUSIVE) -->
+        <!-- ==================================================== -->
+        <section id="tab-socio" class="tab-section">
+            <!-- Non-Member Locked State -->
+            <div class="socio-locked-container" id="socio-locked-view">
+                <div class="lock-card">
+                    <div class="lock-wrapper">
+                        <i data-lucide="lock" class="lock-icon"></i>
+                        <i data-lucide="gem" class="gem-bg-icon"></i>
+                    </div>
+                    <h2>Área de Sócio Exclusiva</h2>
+                    <p>Esta zona é reservada a membros registados com o cargo de <strong>Sócio</strong> (<span class="text-neon-purple">ID: 1450141655125594167</span>) no nosso servidor de Discord.</p>
+                    
+                    <div class="sync-status-check">
+                        <p id="socio-status-text">Não tens sessão iniciada com o Discord.</p>
+                        <button class="btn btn-neon-purple" id="btn-socio-unlock-action" onclick="showSyncModal()">
+                            <i data-lucide="link"></i> Sincronizar Discord
+                        </button>
+                    </div>
+
+                    <div class="membership-info-box">
+                        <h4>Como se tornar Sócio?</h4>
+                        <p>Visita o canal <strong>#se-socio</strong> no Discord oficial da Nexus, segue as instruções de adesão e depois faz login aqui no site para sincronizar e desbloquear o acesso imediato.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Member Content (Unlocked State) -->
+            <div class="socio-unlocked-container" id="socio-unlocked-view" style="display: none;">
+                <div class="socio-header-dashboard">
+                    <div class="socio-welcome">
+                        <span class="welcome-badge"><i data-lucide="gem"></i> MEMBRO VIP NEXUS</span>
+                        <h2>Bem-vindo ao Salão de Sócios!</h2>
+                        <p>Aproveita as tuas vantagens exclusivas de membro.</p>
+                    </div>
+                </div>
+
+                <div class="socio-grid">
+                    <!-- Left column: Chat Sócios -->
+                    <div class="socio-chat-box glass-panel">
+                        <div class="panel-header">
+                            <h3><i data-lucide="message-square"></i> Chat de Sócios (Exclusivo Web)</h3>
+                            <span class="online-indicator"><span class="pulse-dot"></span> Sócio Chat (+5 XP)</span>
+                        </div>
+                        <div class="socio-chat-messages" id="socio-chat-logs">
+                            <!-- Poll/Load chat logs -->
+                        </div>
+                        <div class="socio-chat-input-wrap">
+                            <form onsubmit="sendSocioChatMessage(event)" class="chat-input-form">
+                                <input type="text" id="socio-chat-input" placeholder="Conversa com outros sócios..." required>
+                                <button type="submit" class="btn btn-neon-purple"><i data-lucide="send"></i></button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Right column: Feed widgets -->
+                    <div class="socio-feeds">
+                        <!-- Drops section -->
+                        <div class="glass-panel socio-feed-widget">
+                            <h3><i data-lucide="gift" class="text-neon-cyan"></i> Drops para Sócios</h3>
+                            <div class="exclusive-items-list">
+                                <div class="exclusive-item">
+                                    <span class="exclusive-badge-cyan">DROP ATIVO</span>
+                                    <h4>Pacote de Overlays Nexus Neon (Ficheiros Source PSD/AE)</h4>
+                                    <p>Exclusivo para sócios usarem nas suas streams. Transfere os ficheiros editáveis.</p>
+                                    <button class="btn btn-outline-cyan btn-xs mt-10" onclick="alert('Download iniciado! (Simulado)')"><i data-lucide="download"></i> Descarregar PSD</button>
+                                </div>
+                                <div class="exclusive-item">
+                                    <span class="exclusive-badge-purple">CHAVE BETA</span>
+                                    <h4>Acesso à Beta Fechada do Servidor Nexus RPG</h4>
+                                    <p>Chave de acesso antecipado: <code>NEXUS-MEMBER-BETA-2026</code></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Exclusive Tournaments and Events -->
+                        <div class="glass-panel socio-feed-widget">
+                            <h3><i data-lucide="swords" class="text-neon-magenta"></i> Torneios & Eventos VIP</h3>
+                            <div class="exclusive-items-list">
+                                <div class="exclusive-item">
+                                    <span class="exclusive-badge-magenta">COMPETIÇÃO VIP</span>
+                                    <h4>Nexus Masters 2v2 Aim-Map CS2 (Sócios)</h4>
+                                    <p>Inscrições gratuitas exclusivas. Prémio: 50€ em Cartão Steam.</p>
+                                    <button class="btn btn-neon-magenta btn-xs mt-10" onclick="alert('Inscrição efetuada com sucesso! (Simulado)')"><i data-lucide="check"></i> Inscrever Equipa</button>
+                                </div>
+                                <div class="exclusive-item">
+                                    <span class="exclusive-badge-purple">NOTÍCIA EXCLUSIVA</span>
+                                    <h4>Reunião Geral com André Alves no Discord</h4>
+                                    <p>Discussão do Roadmap do site e planeador a realizar-se no canal de Voz Sócios dia 10 de Junho.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================================================== -->
+        <!-- ADMIN DASHBOARD SECTION -->
+        <!-- ==================================================== -->
+        <section id="tab-admin" class="tab-section">
+            <div class="section-title-wrap">
+                <span class="tag-magenta"><i data-lucide="shield-check"></i> PAINEL DE CONTROLO</span>
+                <h2 class="section-h2">Administração do Site</h2>
+                <p class="section-p">Tens o cargo Administrador do Servidor Discord. Podes gerir tickets de suporte, XP do Ranking e moderar as músicas partilhadas.</p>
+            </div>
+
+            <div class="admin-grid">
+                <!-- Manage Ranking XP -->
+                <div class="glass-panel admin-card">
+                    <h3><i data-lucide="award"></i> Gerir XP dos Utilizadores</h3>
+                    <p class="panel-subtitle">Edita e atribui XP e níveis aos utilizadores registados.</p>
+                    <form onsubmit="adjustUserXP(event)" class="cyber-form mt-20">
+                        <div class="form-group">
+                            <label for="admin-xp-username">Nome de Utilizador (Discord ou Google)</label>
+                            <input type="text" id="admin-xp-username" placeholder="Ex: André Alves" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="admin-xp-amount">Quantidade de XP Total</label>
+                            <input type="number" id="admin-xp-amount" min="0" placeholder="Ex: 500" required>
+                            <small class="form-hint">Cada 100 XP aumenta 1 nível automático.</small>
+                        </div>
+                        <button type="submit" class="btn btn-neon-magenta btn-block">Atualizar Nível/XP</button>
+                    </form>
+                </div>
+
+                <!-- Admin Action Info -->
+                <div class="glass-panel admin-card">
+                    <h3><i data-lucide="info"></i> Ações do Servidor & Moderação</h3>
+                    <p class="panel-subtitle">Painel Geral de Registos e Comandos Rápidos.</p>
+                    
+                    <div class="admin-info-list mt-20">
+                        <div class="info-row">
+                            <span>Guild ID:</span>
+                            <code class="text-neon-cyan">1157231609918013440</code>
+                        </div>
+                        <div class="info-row">
+                            <span>Cargo Admin ID:</span>
+                            <code>1158008690788548610</code>
+                        </div>
+                        <div class="info-row">
+                            <span>Cargo Sócio ID:</span>
+                            <code>1450141655125594167</code>
+                        </div>
+                    </div>
+                    
+                    <div class="admin-quick-actions mt-20">
+                        <button class="btn btn-outline-cyan btn-sm btn-block" onclick="refreshSystemFeeds()">
+                            <i data-lucide="refresh-cw"></i> Forçar Limpeza da Cache Discord
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-brand">
+                <div class="footer-logo">
+                    <div class="logo-wrapper-mini"><span class="logo-letter">N</span></div>
+                    <span>NEXUS</span>
+                </div>
+                <p>O hub central para jogadores, sócios e fãs da Nexus. Sincroniza e começa a subir de nível hoje.</p>
+            </div>
+            <div class="footer-links">
+                <h4>Navegação</h4>
+                <ul>
+                    <li><a href="#" onclick="switchTab('home')">Início & Regras</a></li>
+                    <li><a href="#feed" onclick="switchTab('feed')">Novidades Discord</a></li>
+                    <li><a href="#musicas" onclick="switchTab('musicas')">Músicas</a></li>
+                    <li><a href="#ranking" onclick="switchTab('ranking')">Leaderboard</a></li>
+                    <li><a href="#tickets" onclick="switchTab('tickets')">Tickets</a></li>
+                </ul>
+            </div>
+            <div class="footer-credits">
+                <p>&copy; 2026 Nexus. Todos os direitos reservados.</p>
+                <p>Criado para André Alves & Nexus Empresa.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ==================================================== -->
+    <!-- SYNC / LOGIN MODAL -->
+    <!-- ==================================================== -->
+    <div class="modal-backdrop" id="sync-modal" style="display: none;">
+        <div class="glass-panel modal-card">
+            <div class="modal-header">
+                <h3>Sincronizar Conta Nexus</h3>
+                <button class="btn-close" onclick="closeSyncModal()"><i data-lucide="x"></i></button>
+            </div>
+            <div class="modal-body">
+                <p>Associa a tua conta do Discord e Google para obteres acesso a funcionalidades adicionais como cargos de Sócio, submissão de músicas e tickets.</p>
+                
+                <div class="sync-buttons">
+                    <a href="/auth/discord" class="btn btn-discord btn-block">
+                        <i data-lucide="message-square"></i> Sincronizar com Discord
+                    </a>
+                    <a href="/auth/google" class="btn btn-google btn-block">
+                        <i data-lucide="chrome"></i> Sincronizar com Google
+                    </a>
+                </div>
+                
+                <div class="modal-footer-notes">
+                    <p><i data-lucide="shield-check"></i> Processo seguro. As tuas credenciais são guardadas via OAuth sem acesso a dados privados ou palavras-passe.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================================================== -->
+    <!-- FLOATING DEVELOPER SANDBOX PANEL -->
+    <!-- ==================================================== -->
+    <div class="floating-sandbox" id="dev-sandbox">
+        <div class="sandbox-trigger" onclick="toggleSandboxBody()">
+            <i data-lucide="terminal"></i>
+            <span>Dev Console</span>
+            <span class="sandbox-active-badge" id="sandbox-active-role">Convidado</span>
+        </div>
+        <div class="sandbox-body" id="dev-sandbox-body" style="display: none;">
+            <h4>Simulador de Acesso (Offline Mock)</h4>
+            <p>Usa estes botões rápidos para simular perfis e testar sem configurar chaves OAuth reais ou estar ligado à internet:</p>
+            
+            <div class="sandbox-btns">
+                <button class="btn btn-xs btn-outline-cyan" onclick="triggerMockLogin('user')">Utilizador Comum</button>
+                <button class="btn btn-xs btn-outline-purple" onclick="triggerMockLogin('socio')">Sócio VIP</button>
+                <button class="btn btn-xs btn-outline-magenta" onclick="triggerMockLogin('admin')">Administrador 👑</button>
+                <button class="btn btn-xs btn-danger" onclick="triggerMockLogin('logout')">Sair (Desconectar)</button>
+            </div>
+            
+            <div class="sandbox-meta">
+                <small>Permite testar as vistas: <strong>Regras (Geral)</strong>, <strong>Tickets (Comum)</strong>, <strong>Sala de Sócios (Sócios)</strong> e o <strong>Painel de Controlo (Admin)</strong> de forma instantânea.</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Core Controller App.js -->
+    <script src="app.js"></script>
+</body>
+</html>
