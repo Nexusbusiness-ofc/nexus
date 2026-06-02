@@ -216,7 +216,6 @@ async function checkAuthStatus() {
                 document.getElementById('admin-announcement-form-container').style.display = 'none';
             }
             
-            updateDevSandboxRoleIndicator();
         } else {
             appState.user = null;
             appState.loggedIn = false;
@@ -231,7 +230,6 @@ async function checkAuthStatus() {
             document.getElementById('nav-admin-btn').style.display = 'none';
             document.getElementById('admin-announcement-form-container').style.display = 'none';
             
-            updateDevSandboxRoleIndicator();
         }
     } catch (error) {
         console.error('Falha ao obter estado de login:', error);
@@ -972,70 +970,7 @@ async function refreshSystemFeeds() {
     }
 }
 
-// ----------------------------------------------------
-// MOCK DEVELOPER ACCESS CENTER
-// ----------------------------------------------------
-function toggleSandboxBody() {
-    const body = document.getElementById('dev-sandbox-body');
-    body.style.display = body.style.display === 'none' ? 'block' : 'none';
-}
 
-async function triggerMockLogin(role) {
-    try {
-        const response = await fetch('/api/auth/mock', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ role })
-        });
-        const data = await response.json();
-
-        if (data.success) {
-            notify(`Login mock efetuado: ${role.toUpperCase()}`, 'success');
-            closeSyncModal();
-            
-            // Reload all setups and view states
-            await checkAuthStatus();
-            
-            // Re-render panels according to role shifts
-            if (appState.activeTab === 'socio') {
-                checkSocioAccess();
-            } else if (appState.activeTab === 'tickets') {
-                loadUserTickets();
-            } else if (appState.activeTab === 'admin' && role !== 'admin') {
-                switchTab('home'); // Send non-admins away
-            } else if (appState.activeTab === 'musicas') {
-                loadMusicList();
-            }
-        }
-    } catch (err) {
-        console.error(err);
-    }
-}
-
-function updateDevSandboxRoleIndicator() {
-    const indicator = document.getElementById('sandbox-active-role');
-    if (!indicator) return;
-
-    if (!appState.loggedIn) {
-        indicator.textContent = 'Convidado';
-        indicator.style.color = 'var(--text-muted)';
-        indicator.style.background = 'rgba(255, 255, 255, 0.05)';
-    } else {
-        if (appState.user.is_admin) {
-            indicator.textContent = 'Admin 👑';
-            indicator.style.color = 'var(--neon-magenta)';
-            indicator.style.background = 'var(--neon-magenta-20)';
-        } else if (appState.user.is_socio) {
-            indicator.textContent = 'Sócio VIP 💎';
-            indicator.style.color = 'var(--neon-purple)';
-            indicator.style.background = 'var(--neon-purple-20)';
-        } else {
-            indicator.textContent = 'Utilizador 👤';
-            indicator.style.color = 'var(--neon-cyan)';
-            indicator.style.background = 'var(--neon-cyan-20)';
-        }
-    }
-}
 
 // Online counter fetcher
 async function updateOnlineMemberCount() {

@@ -622,31 +622,7 @@
         </div>
     </div>
 
-    <!-- ==================================================== -->
-    <!-- FLOATING DEVELOPER SANDBOX PANEL -->
-    <!-- ==================================================== -->
-    <div class="floating-sandbox" id="dev-sandbox">
-        <div class="sandbox-trigger" onclick="toggleSandboxBody()">
-            <i data-lucide="terminal"></i>
-            <span>Dev Console</span>
-            <span class="sandbox-active-badge" id="sandbox-active-role">Convidado</span>
-        </div>
-        <div class="sandbox-body" id="dev-sandbox-body" style="display: none;">
-            <h4>Simulador de Acesso (Offline Mock)</h4>
-            <p>Usa estes botões rápidos para simular perfis e testar sem configurar chaves OAuth reais ou estar ligado à internet:</p>
-            
-            <div class="sandbox-btns">
-                <button class="btn btn-xs btn-outline-cyan" onclick="triggerMockLogin('user')">Utilizador Comum</button>
-                <button class="btn btn-xs btn-outline-purple" onclick="triggerMockLogin('socio')">Sócio VIP</button>
-                <button class="btn btn-xs btn-outline-magenta" onclick="triggerMockLogin('admin')">Administrador 👑</button>
-                <button class="btn btn-xs btn-danger" onclick="triggerMockLogin('logout')">Sair (Desconectar)</button>
-            </div>
-            
-            <div class="sandbox-meta">
-                <small>Permite testar as vistas: <strong>Regras (Geral)</strong>, <strong>Tickets (Comum)</strong>, <strong>Sala de Sócios (Sócios)</strong> e o <strong>Painel de Controlo (Admin)</strong> de forma instantânea.</small>
-            </div>
-        </div>
-    </div>
+
 
     <!-- Core Controller App.js -->
     <script src="app.js"></script>

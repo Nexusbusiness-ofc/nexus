@@ -433,54 +433,6 @@ const server = http.createServer(async (req, res) => {
     return sendJSON(res, { success: true });
   }
 
-  // POST Developer mock login backdoor
-  if (pathname === '/api/auth/mock' && method === 'POST') {
-    const rawBody = await getRequestBody(req);
-    const body = JSON.parse(rawBody || '{}');
-    const role = body.role;
-
-    if (role === 'logout') {
-      req.session.user = null;
-      return sendJSON(res, { success: true });
-    }
-
-    let mockUser = {
-      discord_id: '9999999999999999',
-      discord_username: 'Nexus Tester',
-      discord_avatar: 'https://cdn.discordapp.com/embed/avatars/0.png',
-      google_id: '8888888888888888',
-      google_email: 'tester@nexus.pt',
-      google_name: 'Nexus Tester',
-      google_picture: 'https://cdn.discordapp.com/embed/avatars/1.png',
-      is_admin: 0,
-      is_socio: 0,
-      xp: 580,
-      level: 3
-    };
-
-    if (role === 'admin') {
-      mockUser.is_admin = 1;
-      mockUser.is_socio = 1;
-      mockUser.discord_username = 'Nexus Admin 👑';
-    } else if (role === 'socio') {
-      mockUser.is_socio = 1;
-      mockUser.discord_username = 'Nexus Sócio 💎';
-    }
-
-    let dbUser = await query.getUserByDiscordId(mockUser.discord_id);
-    if (!dbUser) {
-      dbUser = await query.createUser(mockUser);
-    } else {
-      dbUser = await query.updateUser(dbUser.id, {
-        discord_username: mockUser.discord_username,
-        is_admin: mockUser.is_admin,
-        is_socio: mockUser.is_socio
-      });
-    }
-
-    req.session.user = dbUser;
-    return sendJSON(res, { success: true, user: dbUser });
-  }
 
   // GET Discord Channel Feeds
   if (pathname === '/api/discord/messages' && method === 'GET') {
@@ -870,5 +822,4 @@ const server = http.createServer(async (req, res) => {
 // Launch server listen listener
 server.listen(PORT, () => {
   console.log(`⚡ Servidor Nexus a correr na porta ${PORT} (Sem dependências NPM!)`);
-  console.log(`👑 Sandbox Dev Bypass ativo: usa o painel no canto inferior do site para testar perfis!`);
 });
