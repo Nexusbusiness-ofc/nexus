@@ -202,7 +202,9 @@ const MOCK_MESSAGES = {
 // ----------------------------------------------------
 const server = http.createServer(async (req, res) => {
   const sessionId = getOrCreateSession(req, res);
-  const parsedUrl = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
+  const host = req.headers.host || 'localhost';
+  const proto = req.headers['x-forwarded-proto'] || (host.includes('localhost') || host.includes('127.0.0.1') ? 'http' : 'https');
+  const parsedUrl = new URL(req.url, `${proto}://${host}`);
   const pathname = parsedUrl.pathname;
   const method = req.method;
 
@@ -213,7 +215,7 @@ const server = http.createServer(async (req, res) => {
   // OAuth Routes
   // ----------------------------------------------------
   if (pathname === '/auth/discord' && method === 'GET') {
-    const redirectUri = `${parsedUrl.protocol}//${req.headers.host}/auth/discord/callback`;
+    const redirectUri = `${parsedUrl.protocol}//${host}/auth/discord/callback`;
     const discordAuthUrl = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=identify`;
     redirect(res, discordAuthUrl);
     return;
@@ -223,7 +225,7 @@ const server = http.createServer(async (req, res) => {
     const code = parsedUrl.searchParams.get('code');
     if (!code) return redirect(res, '/?error=discord_auth_failed');
     
-    const redirectUri = `${parsedUrl.protocol}//${req.headers.host}/auth/discord/callback`;
+    const redirectUri = `${parsedUrl.protocol}//${host}/auth/discord/callback`;
 
     try {
       // Exchange Code for Access Token
@@ -315,7 +317,7 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (pathname === '/auth/google' && method === 'GET') {
-    const redirectUri = `${parsedUrl.protocol}//${req.headers.host}/auth/google/callback`;
+    const redirectUri = `${parsedUrl.protocol}//${host}/auth/google/callback`;
     const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent('profile email')}`;
     redirect(res, googleAuthUrl);
     return;
@@ -325,7 +327,7 @@ const server = http.createServer(async (req, res) => {
     const code = parsedUrl.searchParams.get('code');
     if (!code) return redirect(res, '/?error=google_auth_failed');
 
-    const redirectUri = `${parsedUrl.protocol}//${req.headers.host}/auth/google/callback`;
+    const redirectUri = `${parsedUrl.protocol}//${host}/auth/google/callback`;
 
     try {
       // Exchange Code for Access Token
