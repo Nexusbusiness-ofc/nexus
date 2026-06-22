@@ -1043,13 +1043,20 @@ function escapeHtml(str) {
 }
 
 // ----------------------------------------------------
-// PARALLAX SCROLLING AND MOUSE TILT ENGINE
+// PARALLAX SCROLLING, MOUSE TILT, AND THREE.JS WebGL 3D ENGINE
 // ----------------------------------------------------
 function initParallaxEffects() {
     // Check if user prefers reduced motion
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        const fallback = document.querySelector('.logo-fallback-glow');
+        if (fallback) fallback.style.display = 'block';
+        return;
+    }
 
-    // 1. Performant Scroll Parallax
+    // 1. Three.js 3D Canvas initialization
+    initThreeJSViewport();
+
+    // 2. Performant Scroll Parallax
     let scrollY = window.scrollY;
     let ticking = false;
 
@@ -1057,7 +1064,7 @@ function initParallaxEffects() {
         scrollY = window.scrollY;
         if (!ticking) {
             window.requestAnimationFrame(() => {
-                // Background elements
+                // Background elements translation
                 const grid = document.querySelector('.cyber-grid-overlay');
                 if (grid) grid.style.transform = `translate3d(0, ${scrollY * 0.12}px, 0)`;
 
@@ -1070,7 +1077,7 @@ function initParallaxEffects() {
                 const glowMagenta = document.querySelector('.cyber-glow-magenta');
                 if (glowMagenta) glowMagenta.style.transform = `translate3d(-50%, calc(-50% + ${scrollY * 0.03}px), 0)`;
 
-                // Floating landing page shapes
+                // Floating landing page shapes translation
                 const shapes = document.querySelectorAll('.parallax-shape');
                 shapes.forEach(shape => {
                     const speed = parseFloat(shape.getAttribute('data-speed')) || 0.1;
@@ -1083,8 +1090,8 @@ function initParallaxEffects() {
         }
     }, { passive: true });
 
-    // 2. Mouse Tilt Effect for Cards
-    const tiltElements = document.querySelectorAll('.benefit-card, .rules-card, .logo-box, .glass-panel');
+    // 3. Mouse Tilt Effect for Cards
+    const tiltElements = document.querySelectorAll('.benefit-card, .rules-card, .logo-box, .glass-panel, .portfolio-card');
     
     tiltElements.forEach(el => {
         el.addEventListener('mousemove', e => {
@@ -1102,7 +1109,7 @@ function initParallaxEffects() {
             el.style.transition = 'transform 0.05s ease-out, box-shadow 0.1s ease-out';
             el.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-4px)`;
             
-            if (el.classList.contains('benefit-card') || el.classList.contains('logo-box')) {
+            if (el.classList.contains('benefit-card') || el.classList.contains('logo-box') || el.classList.contains('portfolio-card')) {
                 const glowX = rotateY * -1.5;
                 const glowY = rotateX * 1.5;
                 el.style.boxShadow = `0 15px 35px rgba(0, 0, 0, 0.4), ${glowX}px ${glowY}px 20px rgba(0, 243, 255, 0.08)`;
@@ -1115,4 +1122,237 @@ function initParallaxEffects() {
             el.style.boxShadow = '';
         });
     });
+}
+
+// ----------------------------------------------------
+// THREE.JS 3D CANVAS VIEWPORT GENERATOR
+// ----------------------------------------------------
+let threeScene, threeCamera, threeRenderer, threeMesh, threeWireframeLine, threeParticles;
+let target3DRotationX = 0;
+let target3DRotationY = 0;
+
+function initThreeJSViewport() {
+    const container = document.getElementById('canvas-3d-container');
+    const fallback = document.querySelector('.logo-fallback-glow');
+    if (!container) return;
+
+    // Detect if WebGL is supported
+    try {
+        const canvas = document.createElement('canvas');
+        const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+        if (!gl) throw new Error('WebGL não suportado');
+    } catch (err) {
+        console.warn('WebGL não está disponível. Mostrando logótipo fallback.');
+        if (fallback) fallback.style.display = 'block';
+        return;
+    }
+
+    // Hide fallback if WebGL succeeds
+    if (fallback) fallback.style.display = 'none';
+
+    const width = container.clientWidth || 320;
+    const height = container.clientHeight || 320;
+
+    // 1. Create Scene, Camera, and Renderer
+    threeScene = new THREE.Scene();
+    threeCamera = new THREE.PerspectiveCamera(45, width / height, 1, 1000);
+    threeCamera.position.z = 150;
+
+    threeRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    threeRenderer.setSize(width, height);
+    threeRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    container.appendChild(threeRenderer.domElement);
+
+    // 2. Add Lighting
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    threeScene.add(ambientLight);
+
+    const cyanLight = new THREE.PointLight(0x00f3ff, 2, 200);
+    cyanLight.position.set(-50, 50, 50);
+    threeScene.add(cyanLight);
+
+    const goldLight = new THREE.PointLight(0xffaa00, 2.5, 200);
+    goldLight.position.set(50, -50, 50);
+    threeScene.add(goldLight);
+
+    // 3. Create blocky N 3D Shape
+    const shape = new THREE.Shape();
+    shape.moveTo(-18, -25);
+    shape.lineTo(-18, 25);
+    shape.lineTo(-7, 25);
+    shape.lineTo(7, -10);
+    shape.lineTo(7, 25);
+    shape.lineTo(18, 25);
+    shape.lineTo(18, -25);
+    shape.lineTo(7, -25);
+    shape.lineTo(-7, 10);
+    shape.lineTo(-7, -25);
+    shape.closePath();
+
+    const extrudeSettings = {
+        depth: 6,
+        bevelEnabled: true,
+        bevelSegments: 4,
+        steps: 1,
+        bevelSize: 1.5,
+        bevelThickness: 1.5
+    };
+
+    const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+    geometry.center(); // Center geometry about origin
+
+    // 4. Create Material representing refracting glass
+    const glassMaterial = new THREE.MeshPhysicalMaterial({
+        color: 0xffaa00,
+        metalness: 0.1,
+        roughness: 0.15,
+        transmission: 0.9,
+        thickness: 4,
+        opacity: 0.5,
+        transparent: true,
+        clearcoat: 1.0,
+        clearcoatRoughness: 0.1,
+        side: THREE.DoubleSide
+    });
+
+    threeMesh = new THREE.Mesh(geometry, glassMaterial);
+    threeScene.add(threeMesh);
+
+    // 5. Create Holographic wireframe outline
+    const edges = new THREE.EdgesGeometry(geometry);
+    threeWireframeLine = new THREE.LineSegments(
+        edges, 
+        new THREE.LineBasicMaterial({ 
+            color: 0x00f3ff,
+            linewidth: 2 
+        })
+    );
+    threeScene.add(threeWireframeLine);
+
+    // 6. Grid Ground plane
+    const gridHelper = new THREE.GridHelper(160, 16, 0x00f3ff, 0x221a35);
+    gridHelper.position.y = -40;
+    gridHelper.rotation.x = Math.PI / 16;
+    gridHelper.opacity = 0.3;
+    gridHelper.transparent = true;
+    threeScene.add(gridHelper);
+
+    // 7. Ambient Sparkles Particle Field
+    const particleCount = 60;
+    const particlesGeom = new THREE.BufferGeometry();
+    const positions = new Float32Array(particleCount * 3);
+    for (let i = 0; i < particleCount * 3; i += 3) {
+        positions[i] = (Math.random() - 0.5) * 120;
+        positions[i + 1] = (Math.random() - 0.5) * 120;
+        positions[i + 2] = (Math.random() - 0.5) * 120;
+    }
+    particlesGeom.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    const particleMat = new THREE.PointsMaterial({
+        color: 0x00f3ff,
+        size: 1.5,
+        transparent: true,
+        opacity: 0.7,
+        blending: THREE.AdditiveBlending
+    });
+    threeParticles = new THREE.Points(particlesGeom, particleMat);
+    threeScene.add(threeParticles);
+
+    // 8. Track cursor coordinates relative to canvas center
+    container.addEventListener('mousemove', (e) => {
+        const rect = container.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        target3DRotationY = ((e.clientX - centerX) / (rect.width / 2)) * 0.4;
+        target3DRotationX = ((e.clientY - centerY) / (rect.height / 2)) * 0.4;
+    });
+
+    container.addEventListener('mouseleave', () => {
+        target3DRotationX = 0;
+        target3DRotationY = 0;
+    });
+
+    // 9. Resize Listener
+    window.addEventListener('resize', () => {
+        const w = container.clientWidth;
+        const h = container.clientHeight;
+        threeCamera.aspect = w / h;
+        threeCamera.updateProjectionMatrix();
+        threeRenderer.setSize(w, h);
+    });
+
+    // 10. Start Animation Loop
+    animateThreeJSScene();
+}
+
+function animateThreeJSScene() {
+    requestAnimationFrame(animateThreeJSScene);
+
+    // Smooth Lerp tracking
+    if (threeMesh) {
+        threeMesh.rotation.y += (target3DRotationY - threeMesh.rotation.y) * 0.08 + 0.005;
+        threeMesh.rotation.x += (target3DRotationX - threeMesh.rotation.x) * 0.08;
+    }
+    if (threeWireframeLine) {
+        threeWireframeLine.rotation.y = threeMesh.rotation.y;
+        threeWireframeLine.rotation.x = threeMesh.rotation.x;
+    }
+
+    // Animate Particles
+    if (threeParticles) {
+        threeParticles.rotation.y += 0.001;
+        threeParticles.rotation.x += 0.0005;
+    }
+
+    // Subtle camera floating effect
+    const time = Date.now() * 0.001;
+    threeCamera.position.y = Math.sin(time) * 3;
+
+    threeRenderer.render(threeScene, threeCamera);
+}
+
+// ----------------------------------------------------
+// ACCORDION TOGGLER & CONTACT FORM
+// ----------------------------------------------------
+function toggleRulesAccordion() {
+    const body = document.getElementById('rules-accordion-body');
+    const arrow = document.getElementById('rules-accordion-arrow');
+    if (!body || !arrow) return;
+
+    const isOpen = body.style.display === 'block';
+    body.style.display = isOpen ? 'none' : 'block';
+    arrow.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+}
+
+async function submitCorporateContact(e) {
+    e.preventDefault();
+    
+    const name = document.getElementById('contact-name').value;
+    const email = document.getElementById('contact-email').value;
+    const subject = document.getElementById('contact-subject').value;
+    const message = document.getElementById('contact-message').value;
+
+    try {
+        const response = await fetch('/api/tickets', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                title: `Pedido de Parceria: ${subject}`,
+                description: message,
+                category: 'Parceria/Empresa',
+                email: email,
+                name: name
+            })
+        });
+
+        if (response.ok) {
+            notify('Proposta enviada! Responderemos em breve.', 'success');
+            document.getElementById('corporate-contact-form').reset();
+        } else {
+            const data = await response.json();
+            notify(data.error || 'Erro ao enviar proposta.', 'error');
+        }
+    } catch (err) {
+        console.error(err);
+        notify('Erro de ligação ao servidor.', 'error');
+    }
 }

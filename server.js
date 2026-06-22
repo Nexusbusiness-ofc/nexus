@@ -95,6 +95,15 @@ function getRequestBody(req) {
   });
 }
 
+async function parseJSONBody(req) {
+  try {
+    const raw = await getRequestBody(req);
+    return JSON.parse(raw || '{}');
+  } catch (err) {
+    return null;
+  }
+}
+
 // Response helpers
 function sendJSON(res, data, statusCode = 200) {
   res.writeHead(statusCode, { 'Content-Type': 'application/json' });
@@ -534,8 +543,8 @@ const server = http.createServer(async (req, res) => {
 
   if (pathname === '/api/musics' && method === 'POST') {
     if (!checkAuth(req, res)) return;
-    const rawBody = await getRequestBody(req);
-    const body = JSON.parse(rawBody || '{}');
+    const body = await parseJSONBody(req);
+    if (!body) return sendJSON(res, { error: 'JSON inválido' }, 400);
     const { title, artist, url } = body;
 
     if (!title || !url) {
@@ -600,25 +609,38 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (pathname === '/api/tickets' && method === 'POST') {
-    if (!checkAuth(req, res)) return;
-    const rawBody = await getRequestBody(req);
-    const body = JSON.parse(rawBody || '{}');
-    const { title, description, category } = body;
+    const body = await parseJSONBody(req);
+    if (!body) return sendJSON(res, { error: 'JSON inválido' }, 400);
+    const { title, description, category, email, name } = body;
 
     if (!title || !description || !category) {
       return sendJSON(res, { error: 'Faltam campos obrigatórios' }, 400);
     }
 
-    const u = req.session.user;
-    const username = u.discord_username || u.google_name;
-    const creatorId = u.discord_id || 'google_' + u.google_id;
-    const ticketId = 'TICKET-' + Math.floor(1000 + Math.random() * 9000);
+    const isCorporate = category === 'Parceria/Empresa';
+    if (!isCorporate && !req.session.user) {
+      if (!checkAuth(req, res)) return;
+    }
 
-    await query.createTicket(ticketId, title, description, category, creatorId, username);
-    
-    // Set first message inside ticket log
-    const pic = u.discord_avatar || u.google_picture || 'https://cdn.discordapp.com/embed/avatars/0.png';
-    await query.createTicketMessage(ticketId, creatorId, username, pic, description, u.is_admin === 1);
+    let username, creatorId, pic, is_admin;
+    if (req.session.user) {
+      const u = req.session.user;
+      username = u.discord_username || u.google_name;
+      creatorId = u.discord_id || 'google_' + u.google_id;
+      pic = u.discord_avatar || u.google_picture || 'https://cdn.discordapp.com/embed/avatars/0.png';
+      is_admin = u.is_admin === 1;
+    } else {
+      username = name || 'Parceiro Anónimo';
+      creatorId = 'guest_corporate_' + crypto.randomBytes(4).toString('hex');
+      pic = 'https://cdn.discordapp.com/embed/avatars/0.png';
+      is_admin = false;
+    }
+
+    const ticketId = 'TICKET-' + Math.floor(1000 + Math.random() * 9000);
+    const finalDescription = email ? `Contacto: ${email}\n\n${description}` : description;
+
+    await query.createTicket(ticketId, title, finalDescription, category, creatorId, username);
+    await query.createTicketMessage(ticketId, creatorId, username, pic, finalDescription, is_admin);
 
     return sendJSON(res, { success: true, ticketId });
   }
@@ -646,8 +668,8 @@ const server = http.createServer(async (req, res) => {
     if (method === 'POST') {
       if (ticket.status === 'closed') return sendJSON(res, { error: 'Ticket está fechado' }, 400);
 
-      const rawBody = await getRequestBody(req);
-      const body = JSON.parse(rawBody || '{}');
+      const body = await parseJSONBody(req);
+      if (!body) return sendJSON(res, { error: 'JSON inválido' }, 400);
       const { message } = body;
 
       if (!message) return sendJSON(res, { error: 'Mensagem vazia' }, 400);
@@ -690,8 +712,8 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (method === 'POST') {
-      const rawBody = await getRequestBody(req);
-      const body = JSON.parse(rawBody || '{}');
+      const body = await parseJSONBody(req);
+      if (!body) return sendJSON(res, { error: 'JSON inválido' }, 400);
       const { message } = body;
 
       if (!message) return sendJSON(res, { error: 'Mensagem vazia' }, 400);
@@ -736,8 +758,8 @@ const server = http.createServer(async (req, res) => {
   if (pathname === '/api/admin/set-xp' && method === 'POST') {
     if (!checkAdmin(req, res)) return;
 
-    const rawBody = await getRequestBody(req);
-    const body = JSON.parse(rawBody || '{}');
+    const body = await parseJSONBody(req);
+    if (!body) return sendJSON(res, { error: 'JSON inválido' }, 400);
     const { username, xpAmount } = body;
 
     if (!username || xpAmount === undefined) {
@@ -782,8 +804,8 @@ const server = http.createServer(async (req, res) => {
   // POST Create Announcement (Admin Only)
   if (pathname === '/api/announcements' && method === 'POST') {
     if (!checkAdmin(req, res)) return;
-    const rawBody = await getRequestBody(req);
-    const body = JSON.parse(rawBody || '{}');
+    const body = await parseJSONBody(req);
+    if (!body) return sendJSON(res, { error: 'JSON inválido' }, 400);
     const { channelId, title, content } = body;
 
     if (!channelId || !title || !content) {

@@ -14,6 +14,9 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     
+    <!-- Three.js WebGL Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
     <!-- Custom Stylesheet -->
     <link rel="stylesheet" href="styles.css">
 </head>
@@ -36,7 +39,7 @@
             </a>
             
             <nav class="nav-menu" id="nav-menu">
-                <a href="#home" class="nav-link active" onclick="switchTab('home')">Início & Regras</a>
+                <a href="#home" class="nav-link active" onclick="switchTab('home')">Início</a>
                 <a href="#feed" class="nav-link" onclick="switchTab('feed')">Novidades Discord</a>
                 <a href="#musicas" class="nav-link" onclick="switchTab('musicas')">Músicas</a>
                 <a href="#ranking" class="nav-link" onclick="switchTab('ranking')">Leaderboard</a>
@@ -83,77 +86,138 @@
             <div class="hero-split">
                 <div class="hero-info">
                     <div class="nexus-badge">
-                        <span class="badge-dot"></span> COMUNIDADE OFICIAL NEXUS
+                        <span class="badge-dot"></span> SOLUTIONS & DIGITAL CREATIVE STUDIO
                     </div>
-                    <h1 class="hero-title">Bem-vindo à <span class="gradient-neon">Nexus.</span></h1>
+                    <h1 class="hero-title">Inovação e Design no ecossistema <span class="gradient-neon">Nexus.</span></h1>
                     <p class="hero-desc">
-                        A nossa empresa e comunidade gaming num único espaço digital. Sincroniza as tuas contas para desbloquear cargos automáticos, acompanhar os feeds de Discord, partilhar músicas, criar tickets de suporte e competir no topo do ranking.
+                        Unimos o desenvolvimento de software de alta performance, design criativo de marcas e a gestão de comunidades online num único ecossistema digital. Sincroniza a tua conta para desbloquear serviços corporativos, aceder à área VIP de sócios, solicitar tickets de suporte e explorar o nosso ecossistema.
                     </p>
                     <div class="hero-actions">
-                        <button class="btn btn-neon-cyan" onclick="switchTab('socio')">Aceder à Zona de Sócios <i data-lucide="arrow-right"></i></button>
-                        <a href="#regras-card" class="btn btn-outline-purple">Ler Regras do Servidor</a>
+                        <a href="#divisoes-seccao" class="btn btn-neon-cyan">Nossos Serviços</a>
+                        <a href="#contacto-seccao" class="btn btn-outline-purple">Entrar em Contacto</a>
                     </div>
                 </div>
                 <div class="hero-shield">
-                    <div class="logo-container-float">
-                        <div class="logo-box">
-                            <div class="glow-ring"></div>
-                            <span class="shield-n">N</span>
+                    <div class="hero-3d-viewport">
+                        <div id="canvas-3d-container"></div>
+                        <div class="logo-fallback-glow">
+                            <img src="assets/logo.jpg" alt="Nexus Logo" class="fallback-logo-img">
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Member Cards Benefits -->
-            <div class="section-title-wrap">
-                <span class="tag-cyan">BENEFÍCIOS EXCLUSIVOS</span>
-                <h2 class="section-h2">Torna-te Sócio Nexus</h2>
+            <!-- Member Cards Benefits / Divisions Section -->
+            <div class="section-title-wrap text-center" id="divisoes-seccao" style="margin-top: 40px;">
+                <span class="tag-cyan">DIVISÕES DE ATUAÇÃO</span>
+                <h2 class="section-h2">Como te podemos ajudar</h2>
+                <p class="section-p">Explore as áreas onde criamos valor e desenvolvemos tecnologia de ponta para a tua marca.</p>
             </div>
             
             <div class="socio-benefit-grid">
                 <div class="benefit-card">
-                    <div class="benefit-icon"><i data-lucide="messages-square"></i></div>
-                    <h3>Chat Exclusivo</h3>
-                    <p>Acede a um chat restrito no site e no Discord para debater estratégias e jogar com outros sócios.</p>
+                    <div class="benefit-icon"><i data-lucide="palette"></i></div>
+                    <h3>Agência Criativa</h3>
+                    <p>Desenho de marcas exclusivas, websites corporativos premium e interfaces de utilizador (UI/UX) com estética futurista de vidro e elevado impacto visual.</p>
                 </div>
                 <div class="benefit-card">
-                    <div class="benefit-icon"><i data-lucide="megaphone"></i></div>
-                    <h3>Notícias & Drops</h3>
-                    <p>Recebe novidades privilegiadas e códigos de jogos, chaves beta ou drops em primeira mão.</p>
+                    <div class="benefit-icon"><i data-lucide="cpu"></i></div>
+                    <h3>Estúdio de Software</h3>
+                    <p>Programação de bots dedicados para Discord, desenvolvimento de integrações de API seguras, bases de dados de alta velocidade e automação empresarial.</p>
                 </div>
                 <div class="benefit-card">
-                    <div class="benefit-icon"><i data-lucide="trophy"></i></div>
-                    <h3>Torneios & Eventos</h3>
-                    <p>Inscrições prioritárias e competições mensais exclusivas para sócios com recompensas em dinheiro.</p>
+                    <div class="benefit-icon"><i data-lucide="users"></i></div>
+                    <h3>Community Hub</h3>
+                    <p>A nossa divisão de entretenimento e comunidade gaming. Organização de torneios de eSports, sorteios ativos, rankings e área VIP de Sócios no Discord.</p>
                 </div>
             </div>
 
-            <!-- Rules Card -->
-            <div class="rules-container" id="regras-card">
-                <div class="rules-card">
-                    <div class="rules-header">
-                        <i data-lucide="scroll" class="rules-logo-icon"></i>
-                        <h2>Regras Oficiais do Servidor</h2>
-                        <p>O cumprimento destas regras é obrigatório para manter a harmonia no portal e no servidor de Discord.</p>
+            <!-- Portfolio Section -->
+            <div class="section-title-wrap text-center" id="portfolio-seccao" style="margin-top: 60px;">
+                <span class="tag-purple">PORTFÓLIO E PROJETOS</span>
+                <h2 class="section-h2">Os Nossos Projetos</h2>
+                <p class="section-p">Tecnologia desenvolvida pela nossa equipa que impulsiona o ecossistema Nexus.</p>
+            </div>
+
+            <div class="portfolio-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; margin-bottom: 80px;">
+                <div class="glass-panel portfolio-card" style="border-left: 2px solid var(--neon-cyan);">
+                    <div class="portfolio-badge" style="margin-bottom: 12px;"><span class="exclusive-badge-cyan">SOFTWARE STUDIO</span></div>
+                    <h3>Nexus Bot</h3>
+                    <p>Bot multifuncional de Discord com sistema de moderação, gamificação por XP e reprodução de música, utilizado ativamente na nossa comunidade.</p>
+                </div>
+                <div class="glass-panel portfolio-card" style="border-left: 2px solid var(--neon-purple);">
+                    <div class="portfolio-badge" style="margin-bottom: 12px;"><span class="exclusive-badge-purple">CREATIVE AGENCY</span></div>
+                    <h3>Portal Web 3D</h3>
+                    <p>Este mesmo portal Web futurista de vidro, integrado com APIs do Discord/Google e base de dados relacional de zero dependências.</p>
+                </div>
+                <div class="glass-panel portfolio-card" style="border-left: 2px solid var(--neon-magenta);">
+                    <div class="portfolio-badge" style="margin-bottom: 12px;"><span class="exclusive-badge-magenta">COMMUNITY HUB</span></div>
+                    <h3>Servidores de Jogo</h3>
+                    <p>Infraestrutura de servidores otimizada para torneios de eSports de baixa latência e integração automática de estatísticas via Webhook.</p>
+                </div>
+            </div>
+
+            <!-- Contact & Partnerships Section -->
+            <div class="rules-container" id="contacto-seccao" style="margin-bottom: 80px;">
+                <div class="glass-panel contact-card" style="border-top: 2px solid var(--neon-cyan); padding: 40px;">
+                    <div class="rules-header" style="text-align: center; margin-bottom: 24px;">
+                        <i data-lucide="mail-question" style="font-size: 2.5rem; color: var(--neon-cyan); margin-bottom: 12px; filter: drop-shadow(0 0 10px var(--neon-cyan-20)); display: inline-block;"></i>
+                        <h2>Contacta a Nexus</h2>
+                        <p>Pretendes contratar os nossos serviços de software/design ou propor uma parceria empresarial? Envia mensagem diretamente.</p>
                     </div>
-                    <div class="rules-body">
-                        <ol class="rules-list">
-                            <li>
-                                <strong>Respeito Mútuo:</strong> É estritamente proibido qualquer comportamento tóxico, assédio, racismo, homofobia ou difamação de outros membros.
+                    <form id="corporate-contact-form" class="cyber-form" onsubmit="submitCorporateContact(event)">
+                        <div class="form-row" style="display: flex; gap: 16px; margin-bottom: 16px;">
+                            <div class="form-group flex-1">
+                                <label for="contact-name">Nome / Empresa</label>
+                                <input type="text" id="contact-name" placeholder="Ex: André Alves / Empresa Lda." required style="width: 100%; padding: 12px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.08); border-radius: 4px; color: #fff;">
+                            </div>
+                            <div class="form-group flex-1">
+                                <label for="contact-email">Email de Contacto</label>
+                                <input type="email" id="contact-email" placeholder="Ex: nome@empresa.com" required style="width: 100%; padding: 12px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.08); border-radius: 4px; color: #fff;">
+                            </div>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 16px;">
+                            <label for="contact-subject">Assunto</label>
+                            <input type="text" id="contact-subject" placeholder="Ex: Orçamento de Website / Integração Discord" required style="width: 100%; padding: 12px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.08); border-radius: 4px; color: #fff;">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 20px;">
+                            <label for="contact-message">Detalhes da Proposta / Dúvida</label>
+                            <textarea id="contact-message" rows="5" placeholder="Descreve detalhadamente o teu projeto ou questão..." required style="width: 100%; padding: 12px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.08); border-radius: 4px; color: #fff; resize: vertical; font-family: var(--font-body);"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-neon-cyan btn-block"><i data-lucide="send"></i> Enviar Proposta / Contactar</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Rules Card Accordion -->
+            <div class="rules-container" id="regras-card" style="margin-bottom: 40px;">
+                <div class="rules-card" style="padding: 24px; cursor: pointer; transition: var(--transition);" onclick="toggleRulesAccordion()">
+                    <div class="rules-accordion-header" style="display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <i data-lucide="scroll" class="rules-logo-icon" style="margin-bottom: 0; font-size: 1.5rem;"></i>
+                            <h3 style="font-size: 1.1rem; margin: 0;">Regras Oficiais da Comunidade & Discord</h3>
+                        </div>
+                        <i data-lucide="chevron-down" id="rules-accordion-arrow" style="color: var(--text-muted); transition: transform 0.3s ease;"></i>
+                    </div>
+                    <div class="rules-body" id="rules-accordion-body" style="display: none; margin-top: 20px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.05);">
+                        <p style="color: var(--text-muted); margin-bottom: 16px; font-size: 0.9rem;">O cumprimento destas regras é obrigatório para manter a harmonia no portal e no servidor de Discord.</p>
+                        <ol class="rules-list" style="margin-left: 20px;">
+                            <li style="margin-bottom: 10px;">
+                                <strong>Respeito Mútuo:</strong> É estritamente proibido qualquer comportamento tóxico, assédio, racismo, homofobia ou difamação.
                             </li>
-                            <li>
-                                <strong>Sem Spam ou Auto-Promoção:</strong> Não faças publicidade indesejada, convites de servidores ou spam de mensagens nos canais de texto.
+                            <li style="margin-bottom: 10px;">
+                                <strong>Sem Spam ou Auto-Promoção:</strong> Não faças publicidade indesejada, convites de servidores ou spam nos canais de texto.
                             </li>
-                            <li>
+                            <li style="margin-bottom: 10px;">
                                 <strong>Linguagem Adequada:</strong> Mantém uma linguagem moderada e apropriada. Evita discussões excessivas de cariz político ou religioso.
                             </li>
-                            <li>
+                            <li style="margin-bottom: 10px;">
                                 <strong>Uso Correto de Canais:</strong> Publica cada conteúdo no canal correspondente (ex. partilha músicas apenas no separador Músicas).
                             </li>
-                            <li>
+                            <li style="margin-bottom: 10px;">
                                 <strong>Uso de Tickets:</strong> Utiliza o sistema de Tickets para dúvidas, denúncias ou problemas relacionados com o cargo de sócio. Evita mencionar staff em canais públicos desnecessariamente.
                             </li>
-                            <li>
+                            <li style="margin-bottom: 10px;">
                                 <strong>Conta Sincronizada:</strong> Para usufruir de privilégios de Sócio ou Administrador, precisas de manter a tua conta de Discord sincronizada no site.
                             </li>
                         </ol>
