@@ -22,6 +22,9 @@
 </head>
 <body>
 
+    <!-- Global Three.js 3D Particles Background -->
+    <canvas id="bg-3d-particles"></canvas>
+
     <!-- Cyberpunk Decorative Glows -->
     <div class="cyber-glow-purple"></div>
     <div class="cyber-glow-cyan"></div>
@@ -37,39 +40,60 @@
                 </div>
                 <span class="logo-text">NEXUS</span>
             </a>
-            
-            <nav class="nav-menu" id="nav-menu">
-                <a href="#home" class="nav-link active" onclick="switchTab('home')">Início</a>
-                <a href="#feed" class="nav-link" onclick="switchTab('feed')">Novidades Discord</a>
-                <a href="#musicas" class="nav-link" onclick="switchTab('musicas')">Músicas</a>
-                <a href="#ranking" class="nav-link" onclick="switchTab('ranking')">Leaderboard</a>
-                <a href="#tickets" class="nav-link" onclick="switchTab('tickets')">Tickets</a>
-                <a href="#socio" class="nav-link" id="nav-socio-btn" onclick="switchTab('socio')">
-                    <i data-lucide="gem" class="icon-socio-glow"></i> Zona Sócio
-                </a>
-                <a href="#admin" class="nav-link nav-admin-only" id="nav-admin-btn" onclick="switchTab('admin')" style="display: none;">
-                    <i data-lucide="shield-alert"></i> Admin
-                </a>
-            </nav>
 
-            <!-- Online Counter -->
-            <div class="nav-online-wrap" style="display: flex; align-items: center; gap: 8px; margin-right: 12px; font-family: var(--font-header); font-size: 0.8rem; font-weight: 600; color: var(--neon-cyan);">
-                <span class="pulse-dot" style="width: 6px; height: 6px; border-radius: 50%; background: var(--neon-cyan); box-shadow: 0 0 6px var(--neon-cyan); animation: pulse 1.5s infinite;"></span>
-                <span><span id="header-online-count">0</span> membros online</span>
-            </div>
-
-            <!-- Authentication Widget -->
-            <div class="nav-auth" id="nav-auth-container">
-                <button class="btn btn-outline-cyan btn-sm" onclick="showSyncModal()">
-                    <i data-lucide="link"></i> Sincronizar Conta
-                </button>
-            </div>
-
-            <button class="menu-toggle" id="menu-toggle" aria-label="Menu">
+            <!-- Hamburger toggle menu (three dashes) on top right -->
+            <button class="menu-toggle" id="menu-toggle" aria-label="Menu" onclick="toggleNavDrawer()">
                 <i data-lucide="menu"></i>
             </button>
         </div>
     </header>
+
+    <!-- Slide-in Navigation Drawer -->
+    <div class="nav-drawer" id="nav-drawer">
+        <div class="drawer-overlay" onclick="toggleNavDrawer()"></div>
+        <div class="drawer-content glass-panel">
+            <div class="drawer-header">
+                <a href="#" class="logo-area" onclick="switchTab('home'); toggleNavDrawer();">
+                    <div class="logo-wrapper">
+                        <span class="logo-letter">N</span>
+                    </div>
+                    <span class="logo-text">NEXUS</span>
+                </a>
+                <button class="drawer-close" onclick="toggleNavDrawer()">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            
+            <nav class="drawer-menu">
+                <a href="#home" class="drawer-link active" id="drawer-link-home" onclick="switchTab('home'); toggleNavDrawer();"><i data-lucide="home"></i> Início</a>
+                <a href="#feed" class="drawer-link" id="drawer-link-feed" onclick="switchTab('feed'); toggleNavDrawer();"><i data-lucide="rss"></i> Discord Live Hub</a>
+                <a href="#musicas" class="drawer-link" id="drawer-link-musicas" onclick="switchTab('musicas'); toggleNavDrawer();"><i data-lucide="music"></i> Sugerir Músicas</a>
+                <a href="#ranking" class="drawer-link" id="drawer-link-ranking" onclick="switchTab('ranking'); toggleNavDrawer();"><i data-lucide="trophy"></i> Leaderboard</a>
+                <a href="#tickets" class="drawer-link" id="drawer-link-tickets" onclick="switchTab('tickets'); toggleNavDrawer();"><i data-lucide="message-square"></i> Tickets de Suporte</a>
+                <a href="#socio" class="drawer-link" id="drawer-socio-btn" onclick="switchTab('socio'); toggleNavDrawer();">
+                    <i data-lucide="gem" class="icon-socio-glow"></i> Zona Sócio
+                </a>
+                <a href="#admin" class="drawer-link nav-admin-only" id="drawer-admin-btn" onclick="switchTab('admin'); toggleNavDrawer();" style="display: none;">
+                    <i data-lucide="shield-alert"></i> Admin Portal
+                </a>
+            </nav>
+
+            <div class="drawer-footer">
+                <!-- Online Counter in Drawer -->
+                <div class="drawer-online-wrap">
+                    <span class="pulse-dot"></span>
+                    <span><span id="drawer-online-count">0</span> membros online</span>
+                </div>
+                
+                <!-- Sync Account Button in Drawer -->
+                <div class="drawer-auth" id="drawer-auth-container">
+                    <button class="btn btn-outline-cyan btn-sm btn-block" onclick="showSyncModal()">
+                        <i data-lucide="link"></i> Sincronizar Conta
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <main class="main-content">
         
@@ -86,15 +110,15 @@
             <div class="hero-split">
                 <div class="hero-info">
                     <div class="nexus-badge">
-                        <span class="badge-dot"></span> SOLUTIONS & DIGITAL CREATIVE STUDIO
+                        <span class="badge-dot"></span> PREMIUM DIGITAL SERVICES & STUDIO
                     </div>
-                    <h1 class="hero-title">Inovação e Design no ecossistema <span class="gradient-neon">Nexus.</span></h1>
+                    <h1 class="hero-title">Inovação, Design e Soluções no ecossistema <span class="gradient-neon">Nexus.</span></h1>
                     <p class="hero-desc">
-                        Unimos o desenvolvimento de software de alta performance, design criativo de marcas e a gestão de comunidades online num único ecossistema digital. Sincroniza a tua conta para desbloquear serviços corporativos, aceder à área VIP de sócios, solicitar tickets de suporte e explorar o nosso ecossistema.
+                        Criamos websites 3D interativos de alto desempenho, fazemos edição profissional de vídeos digitais com elevado dinamismo e desenhamos apresentações/documentos executivos de alto impacto. Sincroniza a tua conta para entrar no ecossistema Nexus e contratar os nossos serviços.
                     </p>
                     <div class="hero-actions">
-                        <a href="#divisoes-seccao" class="btn btn-neon-cyan">Nossos Serviços</a>
-                        <a href="#contacto-seccao" class="btn btn-outline-purple">Entrar em Contacto</a>
+                        <a href="#servicos-seccao" class="btn btn-neon-cyan">Nossos Serviços</a>
+                        <a href="#contacto-seccao" class="btn btn-outline-purple">Pedir Orçamento</a>
                     </div>
                 </div>
                 <div class="hero-shield">
@@ -108,52 +132,53 @@
             </div>
 
             <!-- Member Cards Benefits / Divisions Section -->
-            <div class="section-title-wrap text-center" id="divisoes-seccao" style="margin-top: 40px;">
-                <span class="tag-cyan">DIVISÕES DE ATUAÇÃO</span>
-                <h2 class="section-h2">Como te podemos ajudar</h2>
-                <p class="section-p">Explore as áreas onde criamos valor e desenvolvemos tecnologia de ponta para a tua marca.</p>
+            <div class="section-title-wrap text-center" id="servicos-seccao" style="margin-top: 40px;">
+                <span class="tag-cyan">SERVIÇOS DIGITAIS</span>
+                <h2 class="section-h2">Como Podemos Ajudar o Teu Negócio</h2>
+                <p class="section-p">Soluções digitais premium desenvolvidas sob medida para garantir o máximo impacto visual e técnico.</p>
             </div>
             
             <div class="socio-benefit-grid">
                 <div class="benefit-card">
-                    <div class="benefit-icon"><i data-lucide="palette"></i></div>
-                    <h3>Agência Criativa</h3>
-                    <p>Desenho de marcas exclusivas, websites corporativos premium e interfaces de utilizador (UI/UX) com estética futurista de vidro e elevado impacto visual.</p>
+                    <div class="benefit-icon"><i data-lucide="globe"></i></div>
+                    <h3>Criação de Websites</h3>
+                    <p>Desenvolvimento de websites modernos, landing pages tridimensionais interativas (WebGL), lojas online de alta velocidade e sistemas web integrados totalmente otimizados para SEO.</p>
                 </div>
                 <div class="benefit-card">
-                    <div class="benefit-icon"><i data-lucide="cpu"></i></div>
-                    <h3>Estúdio de Software</h3>
-                    <p>Programação de bots dedicados para Discord, desenvolvimento de integrações de API seguras, bases de dados de alta velocidade e automação empresarial.</p>
+                    <div class="benefit-icon"><i data-lucide="clapperboard"></i></div>
+                    <h3>Edição de Vídeos</h3>
+                    <p>Edição avançada de vídeos para redes sociais (Reels, TikTok, Shorts), canais de YouTube, vídeos promocionais corporativos, motion graphics, correção de cor e design de som premium.</p>
                 </div>
                 <div class="benefit-card">
-                    <div class="benefit-icon"><i data-lucide="users"></i></div>
-                    <h3>Community Hub</h3>
-                    <p>A nossa divisão de entretenimento e comunidade gaming. Organização de torneios de eSports, sorteios ativos, rankings e área VIP de Sócios no Discord.</p>
+                    <div class="benefit-icon"><i data-lucide="file-text"></i></div>
+                    <h3>Apresentações & Documentos</h3>
+                    <p>Design de pitch decks de alto impacto para captação de investimento, apresentações corporativas profissionais (PowerPoint/Slides), minutas, propostas comerciais e CVs executivos.</p>
                 </div>
             </div>
 
             <!-- Portfolio Section -->
             <div class="section-title-wrap text-center" id="portfolio-seccao" style="margin-top: 60px;">
-                <span class="tag-purple">PORTFÓLIO E PROJETOS</span>
-                <h2 class="section-h2">Os Nossos Projetos</h2>
-                <p class="section-p">Tecnologia desenvolvida pela nossa equipa que impulsiona o ecossistema Nexus.</p>
+                <span class="tag-purple">PORTFÓLIO E TRABALHOS</span>
+                <h2 class="section-h2">Projetos de Destaque</h2>
+                <p class="section-p">Uma amostra da nossa dedicação técnica e visual para clientes exigentes.</p>
             </div>
 
             <div class="portfolio-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; margin-bottom: 80px;">
                 <div class="glass-panel portfolio-card" style="border-left: 2px solid var(--neon-cyan);">
-                    <div class="portfolio-badge" style="margin-bottom: 12px;"><span class="exclusive-badge-cyan">SOFTWARE STUDIO</span></div>
-                    <h3>Nexus Bot</h3>
-                    <p>Bot multifuncional de Discord com sistema de moderação, gamificação por XP e reprodução de música, utilizado ativamente na nossa comunidade.</p>
+                    <div class="portfolio-badge" style="margin-bottom: 12px;"><span class="exclusive-badge-cyan">WEB DEVELOPMENT</span></div>
+                    <h3>Website WebGL 3D</h3>
+                    <p>Experiência imersiva em tempo real com partículas flutuantes e interface de vidro dinâmico, integrada com autenticação OAuth e banco de dados de alta velocidade.</p>
                 </div>
                 <div class="glass-panel portfolio-card" style="border-left: 2px solid var(--neon-purple);">
-                    <div class="portfolio-badge" style="margin-bottom: 12px;"><span class="exclusive-badge-purple">CREATIVE AGENCY</span></div>
-                    <h3>Portal Web 3D</h3>
-                    <p>Este mesmo portal Web futurista de vidro, integrado com APIs do Discord/Google e base de dados relacional de zero dependências.</p>
+                    <div class="portfolio-badge" style="margin-bottom: 12px;"><span class="exclusive-badge-purple">VIDEO EDITING</span></div>
+                    <h3>Promo & Reels Teasers</h3>
+                    <p>Criação e edição de anúncios em vídeo verticais com transições dinâmicas, sincronização musical premium e legendagem automatizada de elevada retenção.</p>
                 </div>
                 <div class="glass-panel portfolio-card" style="border-left: 2px solid var(--neon-magenta);">
-                    <div class="portfolio-badge" style="margin-bottom: 12px;"><span class="exclusive-badge-magenta">COMMUNITY HUB</span></div>
-                    <h3>Servidores de Jogo</h3>
-                    <p>Infraestrutura de servidores otimizada para torneios de eSports de baixa latência e integração automática de estatísticas via Webhook.</p>
+                    <div class="portfolio-badge" style="margin-bottom: 12px;"><span class="exclusive-badge-magenta">PRESENTATIONS & PITCH DECKS</span></div>
+                    <h3>Corporate Pitch Deck</h3>
+                    <p>Estrutura visual corporativa minimalista e futurista, criada para comunicar ideias, métricas de negócio e planos de captação de forma clara e atrativa.</p>
+                </div>
                 </div>
             </div>
 
@@ -231,69 +256,115 @@
         <!-- ==================================================== -->
         <section id="tab-feed" class="tab-section">
             <div class="section-title-wrap text-center">
-                <span class="tag-magenta"><i data-lucide="rss"></i> FEEDS EM TEMPO REAL</span>
-                <h2 class="section-h2">Sincronizado com Discord</h2>
-                <p class="section-p">Acompanha as atualizações diretamente das salas oficiais do nosso servidor de Discord.</p>
+                <span class="tag-cyan"><i data-lucide="rss"></i> COMUNIDADE LIVE</span>
+                <h2 class="section-h2">Discord Live Hub</h2>
+                <p class="section-p">Dados reais em tempo real do nosso servidor de Discord. Acompanha membros online, canais de voz e atividades.</p>
             </div>
 
-            <!-- Feed Selector Tabs -->
-            <div class="feed-tabs">
-                <button class="feed-tab-btn active" onclick="loadDiscordFeed('1157363514629955585', this)">
-                    <i data-lucide="newspaper"></i> Notícias
-                </button>
-                <button class="feed-tab-btn" onclick="loadDiscordFeed('1450873051842478131', this)">
-                    <i data-lucide="help-circle"></i> Questionários
-                </button>
-                <button class="feed-tab-btn" onclick="loadDiscordFeed('1157693965605281895', this)">
-                    <i data-lucide="sword"></i> Competições
-                </button>
-                <button class="feed-tab-btn" onclick="loadDiscordFeed('1157693356160336046', this)">
-                    <i data-lucide="calendar"></i> Eventos
-                </button>
-                <button class="feed-tab-btn" onclick="loadDiscordFeed('1178797044538810398', this)">
-                    <i data-lucide="gamepad-2"></i> Jogos Grátis
-                </button>
-                <button class="feed-tab-btn" onclick="loadDiscordFeed('1157441147514388490', this)">
-                    <i data-lucide="gift"></i> Giveaways
-                </button>
-            </div>
-
-            <!-- Admin Announcement Form (Apenas para Admins) -->
-            <div class="glass-panel admin-announcement-panel" id="admin-announcement-form-container" style="display: none; margin-bottom: 24px; border-left: 2px solid var(--neon-magenta);">
-                <h3><i data-lucide="megaphone"></i> Publicar Informação Oficial (Apenas Administradores)</h3>
-                <p class="panel-subtitle">Esta informação será publicada no site de forma persistente e 100% real.</p>
-                <form id="admin-announcement-form" class="cyber-form" onsubmit="submitAnnouncement(event)">
-                    <div class="form-row">
-                        <div class="form-group flex-1">
-                            <label for="announce-channel">Destino / Secção</label>
-                            <select id="announce-channel" required>
-                                <option value="1157363514629955585" selected>Notícias</option>
-                                <option value="1450873051842478131">Questionários</option>
-                                <option value="1157693965605281895">Competições</option>
-                                <option value="1157693356160336046">Eventos</option>
-                                <option value="1178797044538810398">Jogos Grátis</option>
-                                <option value="1157441147514388490">Giveaways</option>
-                            </select>
+            <!-- Discord Live Grid Layout -->
+            <div class="discord-live-grid">
+                
+                <!-- Left Sidebar: Server status & voice channels -->
+                <div class="glass-panel discord-left-panel">
+                    <div class="discord-server-badge">
+                        <div class="logo-wrapper discord-logo-wrap">
+                            <span class="logo-letter">N</span>
                         </div>
-                        <div class="form-group flex-2">
-                            <label for="announce-title">Título do Anúncio *</label>
-                            <input type="text" id="announce-title" placeholder="Resumo em poucas palavras" required>
+                        <div class="discord-server-info-text">
+                            <h3 id="discord-guild-name">Nexus</h3>
+                            <span class="discord-online-badge">
+                                <span class="pulse-dot"></span>
+                                <span id="discord-guild-online-count">0</span> membros online
+                            </span>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label for="announce-content">Conteúdo / Descrição *</label>
-                        <textarea id="announce-content" rows="4" placeholder="Escreve aqui o anúncio oficial do servidor..." required></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-neon-magenta btn-block">Publicar Anúncio Real</button>
-                </form>
-            </div>
 
-            <!-- Feed Messages List -->
-            <div class="feed-messages-container" id="feed-messages-list">
-                <!-- Dynamically Populated -->
-                <div class="feed-loading">
-                    <div class="spinner"></div>
-                    <p>A sincronizar com os canais do Discord...</p>
+                    <!-- Voice Channels List -->
+                    <div class="discord-voice-section">
+                        <h4>Canais de Voz Ativos</h4>
+                        <div id="discord-voice-channels-list" class="discord-voice-list">
+                            <div class="discord-loading-small">
+                                <div class="spinner-small"></div>
+                                <span>A carregar canais...</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Join Button -->
+                    <a href="https://discord.gg/nexus" id="discord-join-invite-btn" target="_blank" class="btn btn-neon-cyan btn-sm btn-block">
+                        <i data-lucide="external-link"></i> Entrar no Servidor
+                    </a>
+                </div>
+
+                <!-- Right Pane: Members online & Text feed -->
+                <div class="discord-right-panes">
+                    
+                    <!-- Online members list -->
+                    <div class="glass-panel discord-members-panel">
+                        <h4 class="pane-title"><i data-lucide="users"></i> Membros Online e Jogos Atuais</h4>
+                        <div id="discord-members-grid" class="discord-members-list">
+                            <div class="discord-loading-small">
+                                <div class="spinner-small"></div>
+                                <span>A carregar membros...</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Text channels feed messages -->
+                    <div class="glass-panel discord-chat-panel">
+                        <div class="chat-header-wrap">
+                            <h4 class="pane-title"><i data-lucide="message-square"></i> Feed de Publicações</h4>
+                            
+                            <!-- Feed selector -->
+                            <div class="feed-tabs">
+                                <button class="feed-tab-btn active" onclick="loadDiscordFeed('1157363514629955585', this)">
+                                    Notícias
+                                </button>
+                                <button class="feed-tab-btn" onclick="loadDiscordFeed('1450873051842478131', this)">
+                                    Perguntas
+                                </button>
+                                <button class="feed-tab-btn" onclick="loadDiscordFeed('1157693965605281895', this)">
+                                    Torneios
+                                </button>
+                                <button class="feed-tab-btn" onclick="loadDiscordFeed('1157693356160336046', this)">
+                                    Eventos
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Admin Announcement Form -->
+                        <div class="glass-panel admin-announcement-panel" id="admin-announcement-form-container" style="display: none;">
+                            <h5><i data-lucide="megaphone"></i> Criar Anúncio Oficial (Admin)</h5>
+                            <form id="admin-announcement-form" class="cyber-form" onsubmit="submitAnnouncement(event)">
+                                <div class="form-row">
+                                    <div class="form-group flex-1">
+                                        <select id="announce-channel" required>
+                                            <option value="1157363514629955585" selected>Notícias</option>
+                                            <option value="1450873051842478131">Perguntas</option>
+                                            <option value="1157693965605281895">Torneios</option>
+                                            <option value="1157693356160336046">Eventos</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group flex-2">
+                                        <input type="text" id="announce-title" placeholder="Título do Anúncio" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <textarea id="announce-content" rows="2" placeholder="Escreve aqui o anúncio..." required></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-neon-magenta btn-sm btn-block">Publicar Anúncio</button>
+                            </form>
+                        </div>
+
+                        <div id="discord-bot-warning" class="discord-warning-box" style="display: none;">
+                            <i data-lucide="info"></i>
+                            <span>O bot Discord está offline. O feed de mensagens abaixo mostra apenas anúncios oficiais guardados no portal.</span>
+                        </div>
+
+                        <div class="feed-messages-container" id="feed-messages-list">
+                            <!-- Dynamically loaded -->
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>

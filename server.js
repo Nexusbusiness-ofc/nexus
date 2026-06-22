@@ -474,6 +474,20 @@ const server = http.createServer(async (req, res) => {
     return sendJSON(res, { success: true });
   }
 
+  // GET Discord Widget (Real-time online users & channels)
+  if (pathname === '/api/discord/widget' && method === 'GET') {
+    try {
+      const response = await fetch(`https://discord.com/api/guilds/${DISCORD_GUILD_ID}/widget.json`);
+      if (!response.ok) {
+        throw new Error(`Erro na API Discord: ${response.statusText}`);
+      }
+      const widgetData = await response.json();
+      return sendJSON(res, widgetData);
+    } catch (err) {
+      console.error('Erro ao ler widget do Discord:', err.message);
+      return sendJSON(res, { error: 'Falha ao sincronizar com o Discord Widget. Certifique-se de que o Widget está ativado nas Definições do Servidor.' }, 500);
+    }
+  }
 
   // GET Discord Channel Feeds
   if (pathname === '/api/discord/messages' && method === 'GET') {

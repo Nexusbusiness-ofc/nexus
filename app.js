@@ -24,19 +24,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialize UI Elements
     initNavbarEffects();
-    initMobileMenu();
+    initBG3DConstellation();
     checkAuthStatus();
     switchTab(appState.activeTab);
     initParallaxEffects();
 
     // Initial Feeds and List loading
-    loadDiscordFeed(appState.activeFeedChannel);
     loadMusicList();
     loadRankingList();
 
-    // Start online count polling
-    updateOnlineMemberCount();
-    setInterval(updateOnlineMemberCount, 15000); // Poll every 15 seconds
+    // Start online count & discord widget polling
+    loadDiscordWidgetData();
+    setInterval(loadDiscordWidgetData, 20000); // Poll widget every 20 seconds
 
     // Check URL parameters for search parameters (OAuth outcomes)
     const urlParams = new URLSearchParams(window.location.search);
@@ -145,25 +144,13 @@ function switchTab(tabId) {
         targetSection.classList.add('active');
     }
 
-    // Toggle active nav menu items
-    document.querySelectorAll('.nav-menu .nav-link').forEach(link => {
+    // Toggle active nav drawer menu items
+    document.querySelectorAll('.drawer-menu .drawer-link').forEach(link => {
         link.classList.remove('active');
         if (link.getAttribute('href') === `#${tabId}`) {
             link.classList.add('active');
         }
     });
-
-    // Close mobile menu if active
-    const navMenu = document.getElementById('nav-menu');
-    if (navMenu && navMenu.classList.contains('active')) {
-        navMenu.classList.remove('active');
-        const menuToggle = document.getElementById('menu-toggle');
-        const icon = menuToggle.querySelector('i');
-        if (icon) {
-            icon.setAttribute('data-lucide', 'menu');
-            lucide.createIcons();
-        }
-    }
 
     // Specific tab triggers
     if (tabId === 'tickets') {
@@ -174,6 +161,9 @@ function switchTab(tabId) {
         loadRankingList();
     } else if (tabId === 'musicas') {
         loadMusicList();
+    } else if (tabId === 'feed') {
+        loadDiscordWidgetData();
+        loadDiscordFeed(appState.activeFeedChannel);
     }
 
     // Clear loops on page shifts
@@ -238,7 +228,7 @@ async function checkAuthStatus() {
 }
 
 function renderAuthUserWidget() {
-    const container = document.getElementById('nav-auth-container');
+    const container = document.getElementById('drawer-auth-container');
     const u = appState.user;
     
     // Pick active username and avatar representation
@@ -253,13 +243,15 @@ function renderAuthUserWidget() {
     }
 
     container.innerHTML = `
-        <div class="user-profile-widget">
-            <img src="${pic}" alt="${name}" class="user-avatar-mini">
-            <div class="user-details-mini">
-                <span class="user-name-mini">${name}</span>
-                <span class="user-lvl-mini">Lvl ${u.level} ${roleBadge}</span>
+        <div class="user-profile-widget" style="width: 100%; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <img src="${pic}" alt="${name}" class="user-avatar-mini" style="width: 32px; height: 32px; border-radius: 50%;">
+                <div class="user-details-mini" style="display: flex; flex-direction: column;">
+                    <span class="user-name-mini" style="font-size: 0.85rem; font-weight: 600; color: #fff;">${name}</span>
+                    <span class="user-lvl-mini" style="font-size: 0.7rem; color: var(--text-muted);">Lvl ${u.level} ${roleBadge}</span>
+                </div>
             </div>
-            <button class="btn-logout-mini" onclick="logoutUser()" title="Terminar Sessão">
+            <button class="btn-logout-mini" onclick="logoutUser()" title="Terminar Sessão" style="background: transparent; border: none; color: var(--text-muted); cursor: pointer;">
                 <i data-lucide="log-out" style="width: 16px; height: 16px;"></i>
             </button>
         </div>
@@ -268,9 +260,9 @@ function renderAuthUserWidget() {
 }
 
 function renderAuthSyncButton() {
-    const container = document.getElementById('nav-auth-container');
+    const container = document.getElementById('drawer-auth-container');
     container.innerHTML = `
-        <button class="btn btn-outline-cyan btn-sm" onclick="showSyncModal()">
+        <button class="btn btn-outline-cyan btn-sm btn-block" onclick="showSyncModal()">
             <i data-lucide="link"></i> Sincronizar Conta
         </button>
     `;
@@ -1114,8 +1106,6 @@ function initParallaxEffects() {
                 const glowY = rotateX * 1.5;
                 el.style.boxShadow = `0 15px 35px rgba(0, 0, 0, 0.4), ${glowX}px ${glowY}px 20px rgba(0, 243, 255, 0.08)`;
             }
-        });
-
         el.addEventListener('mouseleave', () => {
             el.style.transition = 'transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.4s ease-out';
             el.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px)';
@@ -1125,11 +1115,87 @@ function initParallaxEffects() {
 }
 
 // ----------------------------------------------------
-// THREE.JS 3D CANVAS VIEWPORT GENERATOR
+// THREE.JS 3D CANVAS VIEWPORT GENERATOR & BACKGROUND CONSTELLATION
 // ----------------------------------------------------
 let threeScene, threeCamera, threeRenderer, threeMesh, threeWireframeLine, threeParticles;
 let target3DRotationX = 0;
 let target3DRotationY = 0;
+
+// Global Background 3D Particles
+let bgScene, bgCamera, bgRenderer, bgParticles;
+let bgTargetRotationX = 0;
+let bgTargetRotationY = 0;
+
+function initBG3DConstellation() {
+    const canvas = document.getElementById('bg-3d-particles');
+    if (!canvas) return;
+
+    // Detect if WebGL is supported
+    try {
+        const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+        if (!gl) return;
+    } catch (err) {
+        return;
+    }
+
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+
+    bgScene = new THREE.Scene();
+    bgCamera = new THREE.PerspectiveCamera(60, w / h, 1, 1000);
+    bgCamera.position.z = 250;
+
+    bgRenderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+    bgRenderer.setSize(w, h);
+    bgRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    // Particle geometry
+    const particleCount = 200;
+    const geom = new THREE.BufferGeometry();
+    const positions = new Float32Array(particleCount * 3);
+    for (let i = 0; i < particleCount * 3; i += 3) {
+        positions[i] = (Math.random() - 0.5) * 550;
+        positions[i + 1] = (Math.random() - 0.5) * 550;
+        positions[i + 2] = (Math.random() - 0.5) * 550;
+    }
+    geom.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+    const mat = new THREE.PointsMaterial({
+        color: 0x00f3ff,
+        size: 1.8,
+        transparent: true,
+        opacity: 0.5,
+        blending: THREE.AdditiveBlending
+    });
+
+    bgParticles = new THREE.Points(geom, mat);
+    bgScene.add(bgParticles);
+
+    // Track scroll to warp/shift background particles
+    let lastScrollY = window.scrollY;
+    window.addEventListener('scroll', () => {
+        const diff = window.scrollY - lastScrollY;
+        if (bgParticles) {
+            bgParticles.position.y += diff * 0.08;
+            bgParticles.rotation.y += diff * 0.0004;
+        }
+        lastScrollY = window.scrollY;
+    }, { passive: true });
+
+    // Track mouse coordinates to drift background particles
+    window.addEventListener('mousemove', (e) => {
+        bgTargetRotationX = ((e.clientY - h / 2) / h) * 0.15;
+        bgTargetRotationY = ((e.clientX - w / 2) / w) * 0.15;
+    });
+
+    window.addEventListener('resize', () => {
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        bgCamera.aspect = width / height;
+        bgCamera.updateProjectionMatrix();
+        bgRenderer.setSize(width, height);
+    });
+}
 
 function initThreeJSViewport() {
     const container = document.getElementById('canvas-3d-container');
@@ -1156,7 +1222,7 @@ function initThreeJSViewport() {
     // 1. Create Scene, Camera, and Renderer
     threeScene = new THREE.Scene();
     threeCamera = new THREE.PerspectiveCamera(45, width / height, 1, 1000);
-    threeCamera.position.z = 150;
+    threeCamera.position.z = 85;
 
     threeRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     threeRenderer.setSize(width, height);
@@ -1164,51 +1230,28 @@ function initThreeJSViewport() {
     container.appendChild(threeRenderer.domElement);
 
     // 2. Add Lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
     threeScene.add(ambientLight);
 
-    const cyanLight = new THREE.PointLight(0x00f3ff, 2, 200);
-    cyanLight.position.set(-50, 50, 50);
+    const cyanLight = new THREE.PointLight(0x00f3ff, 2.5, 150);
+    cyanLight.position.set(-30, 30, 30);
     threeScene.add(cyanLight);
 
-    const goldLight = new THREE.PointLight(0xffaa00, 2.5, 200);
-    goldLight.position.set(50, -50, 50);
+    const goldLight = new THREE.PointLight(0xffaa00, 3, 150);
+    goldLight.position.set(30, -30, 30);
     threeScene.add(goldLight);
 
-    // 3. Create blocky N 3D Shape
-    const shape = new THREE.Shape();
-    shape.moveTo(-18, -25);
-    shape.lineTo(-18, 25);
-    shape.lineTo(-7, 25);
-    shape.lineTo(7, -10);
-    shape.lineTo(7, 25);
-    shape.lineTo(18, 25);
-    shape.lineTo(18, -25);
-    shape.lineTo(7, -25);
-    shape.lineTo(-7, 10);
-    shape.lineTo(-7, -25);
-    shape.closePath();
+    // 3. Create 3D Crystal Polyhedron Shape (Icosahedron Detail 0)
+    const geometry = new THREE.IcosahedronGeometry(18, 0);
 
-    const extrudeSettings = {
-        depth: 6,
-        bevelEnabled: true,
-        bevelSegments: 4,
-        steps: 1,
-        bevelSize: 1.5,
-        bevelThickness: 1.5
-    };
-
-    const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
-    geometry.center(); // Center geometry about origin
-
-    // 4. Create Material representing refracting glass
+    // 4. Create Material representing refracting glass (Cyan)
     const glassMaterial = new THREE.MeshPhysicalMaterial({
-        color: 0xffaa00,
+        color: 0x00f3ff,
         metalness: 0.1,
-        roughness: 0.15,
-        transmission: 0.9,
-        thickness: 4,
-        opacity: 0.5,
+        roughness: 0.1,
+        transmission: 0.8,
+        thickness: 5,
+        opacity: 0.65,
         transparent: true,
         clearcoat: 1.0,
         clearcoatRoughness: 0.1,
@@ -1218,40 +1261,40 @@ function initThreeJSViewport() {
     threeMesh = new THREE.Mesh(geometry, glassMaterial);
     threeScene.add(threeMesh);
 
-    // 5. Create Holographic wireframe outline
+    // 5. Create Holographic wireframe outline (Gold)
     const edges = new THREE.EdgesGeometry(geometry);
     threeWireframeLine = new THREE.LineSegments(
         edges, 
         new THREE.LineBasicMaterial({ 
-            color: 0x00f3ff,
+            color: 0xffaa00,
             linewidth: 2 
         })
     );
     threeScene.add(threeWireframeLine);
 
     // 6. Grid Ground plane
-    const gridHelper = new THREE.GridHelper(160, 16, 0x00f3ff, 0x221a35);
-    gridHelper.position.y = -40;
+    const gridHelper = new THREE.GridHelper(120, 12, 0x00f3ff, 0x221a35);
+    gridHelper.position.y = -25;
     gridHelper.rotation.x = Math.PI / 16;
-    gridHelper.opacity = 0.3;
+    gridHelper.opacity = 0.25;
     gridHelper.transparent = true;
     threeScene.add(gridHelper);
 
     // 7. Ambient Sparkles Particle Field
-    const particleCount = 60;
+    const particleCount = 40;
     const particlesGeom = new THREE.BufferGeometry();
     const positions = new Float32Array(particleCount * 3);
     for (let i = 0; i < particleCount * 3; i += 3) {
-        positions[i] = (Math.random() - 0.5) * 120;
-        positions[i + 1] = (Math.random() - 0.5) * 120;
-        positions[i + 2] = (Math.random() - 0.5) * 120;
+        positions[i] = (Math.random() - 0.5) * 80;
+        positions[i + 1] = (Math.random() - 0.5) * 80;
+        positions[i + 2] = (Math.random() - 0.5) * 80;
     }
     particlesGeom.setAttribute('position', new THREE.BufferAttribute(positions, 3));
     const particleMat = new THREE.PointsMaterial({
-        color: 0x00f3ff,
-        size: 1.5,
+        color: 0xffaa00,
+        size: 1.2,
         transparent: true,
-        opacity: 0.7,
+        opacity: 0.6,
         blending: THREE.AdditiveBlending
     });
     threeParticles = new THREE.Points(particlesGeom, particleMat);
@@ -1262,8 +1305,8 @@ function initThreeJSViewport() {
         const rect = container.getBoundingClientRect();
         const centerX = rect.left + rect.width / 2;
         const centerY = rect.top + rect.height / 2;
-        target3DRotationY = ((e.clientX - centerX) / (rect.width / 2)) * 0.4;
-        target3DRotationX = ((e.clientY - centerY) / (rect.height / 2)) * 0.4;
+        target3DRotationY = ((e.clientX - centerX) / (rect.width / 2)) * 0.45;
+        target3DRotationX = ((e.clientY - centerY) / (rect.height / 2)) * 0.45;
     });
 
     container.addEventListener('mouseleave', () => {
@@ -1287,9 +1330,9 @@ function initThreeJSViewport() {
 function animateThreeJSScene() {
     requestAnimationFrame(animateThreeJSScene);
 
-    // Smooth Lerp tracking
+    // Smooth Lerp tracking for Hero Crystal Polyhedron
     if (threeMesh) {
-        threeMesh.rotation.y += (target3DRotationY - threeMesh.rotation.y) * 0.08 + 0.005;
+        threeMesh.rotation.y += (target3DRotationY - threeMesh.rotation.y) * 0.08 + 0.006;
         threeMesh.rotation.x += (target3DRotationX - threeMesh.rotation.x) * 0.08;
     }
     if (threeWireframeLine) {
@@ -1297,17 +1340,27 @@ function animateThreeJSScene() {
         threeWireframeLine.rotation.x = threeMesh.rotation.x;
     }
 
-    // Animate Particles
+    // Animate Viewport Particles
     if (threeParticles) {
-        threeParticles.rotation.y += 0.001;
-        threeParticles.rotation.x += 0.0005;
+        threeParticles.rotation.y += 0.0008;
+        threeParticles.rotation.x += 0.0004;
     }
 
     // Subtle camera floating effect
     const time = Date.now() * 0.001;
-    threeCamera.position.y = Math.sin(time) * 3;
+    threeCamera.position.y = Math.sin(time) * 1.5;
 
     threeRenderer.render(threeScene, threeCamera);
+
+    // Render Background Particles
+    if (bgRenderer && bgScene && bgCamera) {
+        if (bgParticles) {
+            bgParticles.rotation.y += 0.0002;
+            bgParticles.rotation.x += (bgTargetRotationX - bgParticles.rotation.x) * 0.04;
+            bgParticles.rotation.y += (bgTargetRotationY - bgParticles.rotation.y) * 0.04;
+        }
+        bgRenderer.render(bgScene, bgCamera);
+    }
 }
 
 // ----------------------------------------------------
@@ -1354,5 +1407,122 @@ async function submitCorporateContact(e) {
     } catch (err) {
         console.error(err);
         notify('Erro de ligação ao servidor.', 'error');
+    }
+}
+
+// ----------------------------------------------------
+// NEW DRAWER NAVIGATION & LIVE DISCORD WIDGET CONTROLLERS
+// ----------------------------------------------------
+
+function toggleNavDrawer() {
+    const drawer = document.getElementById('nav-drawer');
+    if (drawer) {
+        drawer.classList.toggle('active');
+    }
+}
+
+async function loadDiscordWidgetData() {
+    try {
+        const res = await fetch('/api/discord/widget');
+        const data = await res.json();
+        
+        if (data.error) {
+            console.warn(data.error);
+            return;
+        }
+
+        // 1. Update Guild Name
+        const nameEl = document.getElementById('discord-guild-name');
+        if (nameEl && data.name) {
+            nameEl.textContent = data.name;
+        }
+
+        // 2. Update Online Count (both in drawer and widget sidebar)
+        const onlineCount = data.presence_count !== undefined ? data.presence_count : 0;
+        const drawerEl = document.getElementById('drawer-online-count');
+        if (drawerEl) drawerEl.textContent = onlineCount;
+        
+        const widgetEl = document.getElementById('discord-guild-online-count');
+        if (widgetEl) widgetEl.textContent = onlineCount;
+
+        // 3. Update Join Invite Link
+        const inviteEl = document.getElementById('discord-join-invite-btn');
+        if (inviteEl && data.instant_invite) {
+            inviteEl.href = data.instant_invite;
+        }
+
+        // 4. Render Members List & Activities
+        const membersList = document.getElementById('discord-members-grid');
+        if (membersList) {
+            if (!data.members || data.members.length === 0) {
+                membersList.innerHTML = `<div style="grid-column:1/-1; text-align:center; color:var(--text-muted); font-size:0.85rem; padding:16px;">Nenhum membro visível no widget do Discord.</div>`;
+            } else {
+                membersList.innerHTML = '';
+                data.members.forEach(member => {
+                    const statusClass = member.status || 'offline';
+                    const gameName = member.game ? (member.game.name || '') : '';
+                    const activityHtml = gameName ? `<span class="discord-member-activity">A jogar: ${escapeHtml(gameName)}</span>` : '';
+                    
+                    const avatarUrl = member.avatar_url || 'https://cdn.discordapp.com/embed/avatars/0.png';
+                    
+                    const card = document.createElement('div');
+                    card.className = 'discord-member-card';
+                    card.innerHTML = `
+                        <div class="discord-avatar-wrap">
+                            <img src="${avatarUrl}" alt="${escapeHtml(member.username)}" class="discord-avatar">
+                            <span class="discord-status-dot ${statusClass}"></span>
+                        </div>
+                        <div class="discord-member-info">
+                            <span class="discord-member-name">${escapeHtml(member.username)}</span>
+                            ${activityHtml}
+                        </div>
+                    `;
+                    membersList.appendChild(card);
+                });
+            }
+        }
+
+        // 5. Render Voice Channels & occupants
+        const voiceList = document.getElementById('discord-voice-channels-list');
+        if (voiceList) {
+            if (!data.channels || data.channels.length === 0) {
+                voiceList.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:0.85rem; padding:10px;">Sem canais de voz no widget.</div>`;
+            } else {
+                voiceList.innerHTML = '';
+                data.channels.forEach(channel => {
+                    const channelMembers = (data.members || []).filter(m => m.channel_id === channel.id);
+                    
+                    const item = document.createElement('div');
+                    item.style.display = 'flex';
+                    item.style.flexDirection = 'column';
+                    item.style.gap = '4px';
+                    
+                    let membersInRoomHtml = '';
+                    if (channelMembers.length > 0) {
+                        channelMembers.forEach(user => {
+                            membersInRoomHtml += `
+                                <div class="discord-voice-user">
+                                    <img src="${user.avatar_url || 'https://cdn.discordapp.com/embed/avatars/0.png'}" class="discord-voice-avatar">
+                                    <span>${escapeHtml(user.username)}</span>
+                                </div>
+                            `;
+                        });
+                    }
+                    
+                    item.innerHTML = `
+                        <div class="discord-voice-list-item">
+                            <i data-lucide="volume-2"></i>
+                            <span>${escapeHtml(channel.name)}</span>
+                        </div>
+                        ${membersInRoomHtml}
+                    `;
+                    voiceList.appendChild(item);
+                });
+                lucide.createIcons();
+            }
+        }
+
+    } catch (e) {
+        console.error('Falha ao carregar widget do Discord:', e);
     }
 }
