@@ -27,6 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initMobileMenu();
     checkAuthStatus();
     switchTab(appState.activeTab);
+    initParallaxEffects();
 
     // Initial Feeds and List loading
     loadDiscordFeed(appState.activeFeedChannel);
@@ -1039,4 +1040,79 @@ function escapeHtml(str) {
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#039;');
+}
+
+// ----------------------------------------------------
+// PARALLAX SCROLLING AND MOUSE TILT ENGINE
+// ----------------------------------------------------
+function initParallaxEffects() {
+    // Check if user prefers reduced motion
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    // 1. Performant Scroll Parallax
+    let scrollY = window.scrollY;
+    let ticking = false;
+
+    window.addEventListener('scroll', () => {
+        scrollY = window.scrollY;
+        if (!ticking) {
+            window.requestAnimationFrame(() => {
+                // Background elements
+                const grid = document.querySelector('.cyber-grid-overlay');
+                if (grid) grid.style.transform = `translate3d(0, ${scrollY * 0.12}px, 0)`;
+
+                const glowPurple = document.querySelector('.cyber-glow-purple');
+                if (glowPurple) glowPurple.style.transform = `translate3d(0, ${scrollY * -0.04}px, 0)`;
+
+                const glowCyan = document.querySelector('.cyber-glow-cyan');
+                if (glowCyan) glowCyan.style.transform = `translate3d(0, ${scrollY * 0.08}px, 0)`;
+
+                const glowMagenta = document.querySelector('.cyber-glow-magenta');
+                if (glowMagenta) glowMagenta.style.transform = `translate3d(-50%, calc(-50% + ${scrollY * 0.03}px), 0)`;
+
+                // Floating landing page shapes
+                const shapes = document.querySelectorAll('.parallax-shape');
+                shapes.forEach(shape => {
+                    const speed = parseFloat(shape.getAttribute('data-speed')) || 0.1;
+                    shape.style.transform = `translate3d(0, ${scrollY * speed}px, 0) rotate(${scrollY * 0.03}deg)`;
+                });
+
+                ticking = false;
+            });
+            ticking = true;
+        }
+    }, { passive: true });
+
+    // 2. Mouse Tilt Effect for Cards
+    const tiltElements = document.querySelectorAll('.benefit-card, .rules-card, .logo-box, .glass-panel');
+    
+    tiltElements.forEach(el => {
+        el.addEventListener('mousemove', e => {
+            const rect = el.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+
+            // Tilt limit to 5 degrees for premium feel
+            const rotateX = ((centerY - y) / centerY) * 5;
+            const rotateY = ((x - centerX) / centerX) * 5;
+
+            el.style.transition = 'transform 0.05s ease-out, box-shadow 0.1s ease-out';
+            el.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-4px)`;
+            
+            if (el.classList.contains('benefit-card') || el.classList.contains('logo-box')) {
+                const glowX = rotateY * -1.5;
+                const glowY = rotateX * 1.5;
+                el.style.boxShadow = `0 15px 35px rgba(0, 0, 0, 0.4), ${glowX}px ${glowY}px 20px rgba(0, 243, 255, 0.08)`;
+            }
+        });
+
+        el.addEventListener('mouseleave', () => {
+            el.style.transition = 'transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.4s ease-out';
+            el.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px)';
+            el.style.boxShadow = '';
+        });
+    });
 }
