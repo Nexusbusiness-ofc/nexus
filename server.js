@@ -30,6 +30,9 @@ const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
 const DISCORD_GUILD_ID = process.env.DISCORD_GUILD_ID;
 const ROLE_ADMIN = process.env.ROLE_ADMIN;
 const ROLE_SOCIO = process.env.ROLE_SOCIO;
+const ADMIN_DISCORD_IDS = (process.env.ADMIN_DISCORD_IDS || '').split(',').map(id => id.trim());
+const SOCIO_DISCORD_IDS = (process.env.SOCIO_DISCORD_IDS || '').split(',').map(id => id.trim());
+const ADMIN_GOOGLE_EMAILS = (process.env.ADMIN_GOOGLE_EMAILS || '').split(',').map(email => email.trim().toLowerCase());
 
 // ----------------------------------------------------
 // IN-MEMORY SESSION STORE & HELPERS
@@ -271,6 +274,15 @@ const server = http.createServer(async (req, res) => {
       // Fetch Roles via Discord Bot API
       const rolesInfo = await syncDiscordRoles(discordId) || { is_admin: 0, is_socio: 0 };
 
+      // Override with static config lists if specified
+      if (ADMIN_DISCORD_IDS.includes(discordId)) {
+        rolesInfo.is_admin = 1;
+        rolesInfo.is_socio = 1;
+      }
+      if (SOCIO_DISCORD_IDS.includes(discordId)) {
+        rolesInfo.is_socio = 1;
+      }
+
       let user;
       if (req.session.user) {
         // Linked Account
@@ -368,15 +380,21 @@ const server = http.createServer(async (req, res) => {
       const googlePicture = profileData.picture;
 
       let user;
+      let googleIsAdmin = ADMIN_GOOGLE_EMAILS.includes(googleEmail.toLowerCase()) ? 1 : 0;
+      let googleIsSocio = googleIsAdmin;
+
       if (req.session.user) {
         // Linked Google account
         user = req.session.user;
-        user = await query.updateUser(user.id, {
+        const updates = {
           google_id: googleId,
           google_email: googleEmail,
           google_name: googleName,
           google_picture: googlePicture
-        });
+        };
+        if (googleIsAdmin) updates.is_admin = 1;
+        if (googleIsSocio) updates.is_socio = 1;
+        user = await query.updateUser(user.id, updates);
       } else {
         // Sign-in
         user = await query.getUserByGoogleId(googleId);
@@ -384,21 +402,35 @@ const server = http.createServer(async (req, res) => {
           // Merge by Email check
           user = await query.getUserByGoogleEmail(googleEmail);
           if (user) {
-            user = await query.updateUser(user.id, {
+            const updates = {
               google_id: googleId,
               google_name: googleName,
               google_picture: googlePicture
-            });
+            };
+            if (googleIsAdmin) updates.is_admin = 1;
+            if (googleIsSocio) updates.is_socio = 1;
+            user = await query.updateUser(user.id, updates);
           } else {
             user = await query.createUser({
               google_id: googleId,
               google_email: googleEmail,
               google_name: googleName,
               google_picture: googlePicture,
+              is_admin: googleIsAdmin,
+              is_socio: googleIsSocio,
               xp: 100,
               level: 1
             });
           }
+        } else {
+          // Update details
+          const updates = {
+            google_name: googleName,
+            google_picture: googlePicture
+          };
+          if (googleIsAdmin) updates.is_admin = 1;
+          if (googleIsSocio) updates.is_socio = 1;
+          user = await query.updateUser(user.id, updates);
         }
       }
 
